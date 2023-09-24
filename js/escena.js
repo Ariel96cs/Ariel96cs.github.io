@@ -99,10 +99,6 @@ function loadScene(){
         gltf.scene.scale.set(0.01,0.01,0.01);
         sphere.add(gltf.scene);
      });
-
-
-    
-
 }
 
 function update(){
