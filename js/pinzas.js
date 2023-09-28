@@ -12,16 +12,8 @@ import {OrbitControls} from "../lib/OrbitControls.module.js"
 // Variables de consenso
 let renderer, scene, camera;
 
-// Otras globales
-let esferaCubo;
-let angle = 0;
 // Controlador de camera
 let cameraControls;
-
-// Cámaras adicionales
-let planta, alzado, perfil;
-const L = 5;
-
 
 // Acciones
 
@@ -61,7 +53,9 @@ function loadScene(){
     
     // crear la palma de la pinza
     const palma = new THREE.Mesh(new THREE.BoxGeometry(0.19,0.2,0.04),pinzasMaterial);
-    // palma.position.x = 0;
+    // setting position at the 0,0,0
+    palma.position.y = 0.1; 
+
 
     // crear el dedo de la pinza
     // el dedo es un prisma que tiene bases rectangulares y caras laterales trapezoidales
@@ -92,8 +86,20 @@ function loadScene(){
     dedo.setIndex(new THREE.BufferAttribute(indices,1));
     dedo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
     const dedoMesh = new THREE.Mesh(dedo,pinzasMaterial);
-    // juntar el dedo con la palma
-    dedoMesh.position.x = 0.1;
+
+    // rotar 90 grados sobre el eje y 
+    dedoMesh.rotateY(Math.PI/2);
+    dedoMesh.rotateX(Math.PI/2);
+
+    // levantar el dedo 0.1 unidades para que esté centrado sobre la palma
+    dedoMesh.position.y = palma.position.y*2;
+    dedoMesh.position.x = 0.19/2;
+    dedoMesh.position.z = 0.04/2;
+
+    
+
+    
+
 
     // crear la pinza
     const pinza = new THREE.Object3D();
@@ -101,7 +107,7 @@ function loadScene(){
     pinza.add(dedoMesh);
 
     scene.add(pinza);
-
+    scene.add(new THREE.AxisHelper(2));
 }
 
 function update(){
