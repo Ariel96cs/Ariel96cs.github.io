@@ -222,7 +222,6 @@ function crearPinza(material){
         -bottomWidth / 2, bottomHeight / 2, depth / 2,
         bottomWidth / 2, bottomHeight / 2, depth / 2,
     ]);
-    
     const indices = new Uint16Array([
         0, 1, 2, 1, 3, 2, // Front face
         4, 5, 6, 5, 7, 6, // Back face
