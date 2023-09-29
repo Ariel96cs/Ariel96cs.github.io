@@ -56,7 +56,6 @@ function loadScene(){
     // setting position at the 0,0,0
     palma.position.y = 0.1; 
 
-
     // crear el dedo de la pinza
     // el dedo es un prisma que tiene bases rectangulares y caras laterales trapezoidales
     const dedo = new THREE.BufferGeometry();
@@ -68,7 +67,6 @@ function loadScene(){
                     0,0.19,0.02, // 4
                     0.02,0.19,0.02, // 5
                     0.0,0.19,0.18, // 6
-
                     0.02,0.19,0.18, // 7
     ]);
     const indices = new Uint16Array([
@@ -80,9 +78,8 @@ function loadScene(){
                     5,6,7, // lateral derecho
                     2,3,7, // base superior
                     2,7,6, // base superior
-
-
     ]);
+
     dedo.setIndex(new THREE.BufferAttribute(indices,1));
     dedo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
     const dedoMesh = new THREE.Mesh(dedo,pinzasMaterial);
@@ -95,11 +92,6 @@ function loadScene(){
     dedoMesh.position.y = palma.position.y*2;
     dedoMesh.position.x = 0.19/2;
     dedoMesh.position.z = 0.04/2;
-
-    
-
-    
-
 
     // crear la pinza
     const pinza = new THREE.Object3D();

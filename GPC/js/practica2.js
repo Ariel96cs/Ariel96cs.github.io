@@ -6,11 +6,13 @@
 
 // Modulos necesarios
 import * as THREE from "../lib/three.module.js"
+import {OrbitControls} from "../lib/OrbitControls.module.js"
 
 // Variables de consenso
 let renderer, scene, camera;
 
-// Otras globales
+// Controlador de camera
+let cameraControls;
 
 // Acciones
 
@@ -36,8 +38,10 @@ function init(){
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,
                                             0.1,1000);
 
-    let trans = 1;
-    camera.position.set(1,3,2);
+    camera.position.set(0.8,2,7);
+    cameraControls = new OrbitControls(camera,renderer.domElement);
+    // seleccionar el target que vamos a mirar
+    cameraControls.target.set(0,1,0);
     camera.lookAt(2,0,0);
 
 }
@@ -63,7 +67,7 @@ function loadScene(){
     
 
     // Se crea el material del robot
-    const robotMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff,wireframe: true }); // Color del robot
+    const robotMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff,wireframe: false }); // Color del robot
     
     
     // Crear la base cilíndrica del brazo del robot
@@ -98,8 +102,7 @@ function loadScene(){
     // Levantar el disco para que esté centrado sobre la rotula
     discoMesh.position.y = 1.4;
 
-    // Se crean los 4 nervios
-    
+    // Se crean los 4 nervios del antebrazo
 
     const numNervios = 4;
     const radiusPrisms = 0.1; // Distancia desde el centro del cilindro
@@ -120,30 +123,30 @@ function loadScene(){
     }
 
 
-
-
-    // //Se crea la mano, que está formada por dos pinzas sobre un cilindro
-    const pinzaIzq = crearPinza(robotMaterial);
-    const pinzaDer = crearPinza(robotMaterial);
+    //Se crea la mano, que está formada por dos pinzas sobre un cilindro
+    // se crea el material de la pinza
+    const pinzasMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000,wireframe: false }); // Color del robot
+    const pinzaIzq = crearPinza(pinzasMaterial);
+    const pinzaDer = crearPinza(pinzasMaterial);
     const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
     const cilindroMesh = new THREE.Mesh(cilindroGeometry, robotMaterial);
     // Levantar el cilindro para que esté sobre los nervios, los nervios deben entrar en el cilindro
     cilindroMesh.position.y = 2.3;
     // Rotar el cilindro 90 grados sobre el eje X para que esté en vertical
     cilindroMesh.rotation.x = Math.PI / 2;
-    // Levantar la pinza 
-    pinzaIzq.position.y = 2.3;
-    pinzaIzq.position.z = 0.1;
-    // // Rotar la pinza izquierda 90 grados sobre el eje X para que esté en vertical
-    pinzaIzq.rotation.x = Math.PI / 2;
-    pinzaIzq.rotation.z = -Math.PI / 2;
     
-    // Levantar la pinza 
-    pinzaDer.position.y = 2.3;
+    // Levantar la pinza
+    pinzaIzq.position.y = 2.2;
+    pinzaDer.position.y = 2.2;
+    // Separar las pinzas
+    pinzaIzq.position.z = 0.1;
     pinzaDer.position.z = -0.1;
-    // // Rotar la pinza izquierda 90 grados sobre el eje X para que esté en vertical
-    pinzaDer.rotation.x = Math.PI / 2;
-    pinzaDer.rotation.z = -Math.PI / 2;
+
+    // trasladar las pinzas hacia adelante
+    pinzaIzq.position.x = 0.1;
+    pinzaDer.position.x = 0.1;
+
+    pinzaDer.scale.z = -1; // Invertir la pinza derecha para que ambas pinzas estén enfrentadas
 
     // Se añade la pinza izquierda a la mano
     mano.add(pinzaIzq);
@@ -151,13 +154,9 @@ function loadScene(){
     mano.add(pinzaDer);
     // Se añade el cilindro a la mano
     mano.add(cilindroMesh);
-    // // Levantar la mano 0.1 unidades para que esté centrada sobre los nervios
-    // mano.position.y = 0.1;
-
 
     // Se  crea el grafo de escena en este orden, robot -> base -> brazo -> eje esparrago rotula antebrazo -> disco nervios mano
-    // Se añade la base al robot
-    
+    // Se añade la base al robot    
     robot.add(baseMesh);
     // Se añade el brazo al robot
    
@@ -194,56 +193,61 @@ function render(){
 
 // funcion para crear una pinza
 // una pinza está formada por una palma y un dedo
-function crearPinza(material){
-    // Se crea la palma
-    const palmaGeometry = new THREE.BoxGeometry(0.04, 0.2, 0.19); // Ancho, alto, profundidad
-    const palmaMesh = new THREE.Mesh(palmaGeometry, material);
-    // Levantar la palma para que esté centrada sobre la mano
-    palmaMesh.position.y = 0.2;
-    
-    const trapezoidGeometry = new THREE.BufferGeometry();
+function crearPinza(pinzasMaterial){
 
-    
-    const topWidth = 0.04; // Ancho superior 
-    const topHeight = 0.2; // Altura de la base superior
-    const bottomWidth = topWidth/2; // Ancho inferior
-    const bottomHeight = topHeight/2; // Altura de la base inferior
-    const depth = 0.19; // Profundidad
+    // crear la palma de la pinza
+    const palma = new THREE.Mesh(new THREE.BoxGeometry(0.19,0.2,0.04),pinzasMaterial);
+    // setting position at the 0,0,0
+    palma.position.y = 0.1; 
 
-
-    // Crear una geometría personalizada para el trapezoide tridimensional
+    // crear el dedo de la pinza
+    // el dedo es un prisma que tiene bases rectangulares y caras laterales trapezoidales
+    const dedo = new THREE.BufferGeometry();
     const vertices = new Float32Array([
-        -topWidth / 2, -topHeight / 2, -depth / 2,
-        topWidth / 2, -topHeight / 2, -depth / 2,
-        -bottomWidth / 2, bottomHeight / 2, -depth / 2,
-        bottomWidth / 2, bottomHeight / 2, -depth / 2,
-        -topWidth / 2, -topHeight / 2, depth / 2,
-        topWidth / 2, -topHeight / 2, depth / 2,
-        -bottomWidth / 2, bottomHeight / 2, depth / 2,
-        bottomWidth / 2, bottomHeight / 2, depth / 2,
+                    0,0,0, // 0
+                    0.04,0,0, // 1
+                    0,0,0.2, // 2
+                    0.04,0,0.2, // 3
+                    0,0.19,0.02, // 4
+                    0.02,0.19,0.02, // 5
+                    0.0,0.19,0.18, // 6
+                    0.02,0.19,0.18, // 7
+    ]);
+    const indices = new Uint16Array([
+                    0,1,2, // lateral izquierdo
+                    1,3,2, // lateral izquierdo
+                    0,1,4, // base inferior
+                    1,5,4, // base inferior
+                    5,4,6, // lateral derecho
+                    5,6,7, // lateral derecho
+                    2,3,7, // base superior
+                    2,7,6, // base superior
+                    4,7,3, // cara frontal
+                    4,5,7, // cara frontal
+                    0,6,2, // cara trasera
+                    0,4,6, // cara trasera
     ]);
     
-    const indices = new Uint16Array([
-        0, 1, 2, 1, 3, 2, // Front face
-        4, 5, 6, 5, 7, 6, // Back face
-        0, 1, 4, 1, 5, 4, // Top face
-        2, 3, 6, 3, 7, 6, // Bottom face
-        0, 2, 4, 2, 6, 4, // Left face
-        1, 3, 5, 3, 7, 5, // Right face
-    ]);
+    dedo.setIndex(new THREE.BufferAttribute(indices,1));
+    dedo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
+    const dedoMesh = new THREE.Mesh(dedo,pinzasMaterial);
 
-    trapezoidGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    trapezoidGeometry.setIndex(new THREE.BufferAttribute(indices, 1));
+    // rotar 90 grados sobre el eje y 
+    dedoMesh.rotateY(Math.PI/2);
+    dedoMesh.rotateX(Math.PI/2);
 
-    const dedoMesh = new THREE.Mesh(trapezoidGeometry, material);
+    // levantar el dedo 0.1 unidades para que esté centrado sobre la palma
+    dedoMesh.position.y = palma.position.y*2;
+    dedoMesh.position.x = 0.19/2;
+    dedoMesh.position.z = 0.04/2;
 
-    // Levantar el dedo 0.1 unidades para que esté centrado sobre la palma
-    dedoMesh.position.y = palmaMesh.position.y+0.2;
-
+    // crear la pinza
     const pinza = new THREE.Object3D();
-    pinza.add(palmaMesh);
-    // Se añade el dedo a la pinza
+    pinza.add(palma);
     pinza.add(dedoMesh);
+
+    pinzasMaterial.side = THREE.DoubleSide;
+
     return pinza;
 }
 
