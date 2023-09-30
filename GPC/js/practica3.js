@@ -12,8 +12,17 @@ import {crearPinza} from "./pinzas.js"
 // Variables de consenso
 let renderer, scene, camera;
 
+// Camaras adicionales
+let miniaturaCamera;
+const L = 8;
+
 // Controlador de camera
 let cameraControls;
+
+// Otras variables globales
+let robotX = 0;
+let robotY = 0;
+let robotZ = 0;
 
 // Acciones
 
@@ -30,16 +39,16 @@ function init(){
 
     // se añade el canvas 
     document.getElementById("container").appendChild(renderer.domElement);
+    // renderer.setClearColor(new THREE.Color(0,0,0.1));
+    renderer.autoClear = false
 
     // Escena
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0,0,0.2);
+    // scene.background = new THREE.Color(0,0,0.2);
 
     // Camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,
-                                            0.1,1000);
+    setCameras(window.innerWidth/window.innerHeight);
 
-    camera.position.set(0.8,2,7);
     cameraControls = new OrbitControls(camera,renderer.domElement);
     cameraControls.enableRotate = true;
     cameraControls.enablePan = true;
@@ -54,9 +63,60 @@ function init(){
 
     // seleccionar el target que vamos a mirar
     cameraControls.target.set(0,0,0.001);
-    camera.lookAt(0,0,1);
 
     // se añade el listener para el evento 
+    window.addEventListener('resize',updateAspectRatio);
+}
+
+function setCameras(ar) {
+
+    // Configurar miniCameraOrtografica
+    var camaraOrtografica
+    camaraOrtografica = new THREE.OrthographicCamera(-L, L, L, -L, -1, 800);
+    camaraOrtografica.lookAt(new THREE.Vector3(0, 0, 0));
+
+    miniaturaCamera = camaraOrtografica.clone()
+    miniaturaCamera.position.set(0, L, 0);
+    miniaturaCamera.up = new THREE.Vector3(0, 0, -1)
+    miniaturaCamera.lookAt(new THREE.Vector3(0, 0, 0))
+
+    // Configurar cámara general perspectiva
+    var camaraPerspectiva = new THREE.PerspectiveCamera(75, ar, 0.1, 100);
+    camaraPerspectiva.position.set(1, 2, 10);
+    camaraPerspectiva.lookAt(new THREE.Vector3(0, 0, 0))
+    camera = camaraPerspectiva.clone()
+
+    //Añadir las cámaras a la escena
+    scene.add(camera)
+    scene.add(miniaturaCamera)
+
+}
+/**
+ * Función que se llama cuando se cambia el tamaño de la ventana
+ * 
+ */
+function updateAspectRatio(){
+    renderer.setSize(window.innerWidth,window.innerHeight);
+
+    const ar = window.innerWidth/window.innerHeight;
+    camera.aspect = ar;
+    camera.updateProjectionMatrix();
+
+    if (ar > 1) {
+        miniaturaCamera.left = -L * ar;
+        miniaturaCamera.right  = L * ar;
+        miniaturaCamera.top = L;
+        miniaturaCamera.bottom = -L; 
+
+    }
+    else{
+        miniaturaCamera.left = -L;
+        miniaturaCamera.right = L;
+        miniaturaCamera.top = L/ar;
+        miniaturaCamera.bottom = -L/ar; 
+    }
+    miniaturaCamera.updateProjectionMatrix();
+    // miniaturaCamera.updateMatrix();
 }
 
 function loadScene(){
@@ -65,7 +125,9 @@ function loadScene(){
     const groundGeometry = new THREE.PlaneGeometry(1000, 10000); // Ancho y largo del suelo
 
     // Crear un material para el suelo
-    const groundMaterial = new THREE.MeshNormalMaterial({wireframe: false, flatShading: true});// Color del suelo
+
+    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00});
+     //new THREE.MeshNormalMaterial({wireframe: false, flatShading: true});// Color del suelo
 
     // Crear una malla para el suelo
     const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
@@ -186,18 +248,36 @@ function loadScene(){
     // Se añade la mano al antebrazo
     antebrazo.add(mano);
     
+    // robot.scale.set(10,10,10);
     //se añade el robot a la escena
     scene.add(robot);
 
+    robot.position.set(robotX,robotY,robotZ);
 }
+
 function update(){
 
 }
 
 function render(){
+    renderer.clear();
     requestAnimationFrame(render);
     update();
+    
+
+    // Renderiza la vista miniatura en la esquina superior izquierda
+    var miniaturaSize = 150; // Tamaño de la vista miniatura
+    var padding = 10; // Espacio entre la vista miniatura y los bordes de la ventana
+
+    renderer.setViewport(padding, window.innerHeight - miniaturaSize - padding, miniaturaSize, miniaturaSize);
+    renderer.setScissor(padding, window.innerHeight - miniaturaSize - padding, miniaturaSize, miniaturaSize);
+
+    renderer.render(scene,miniaturaCamera);
+
+    renderer.setViewport(0,0,window.innerWidth,window.innerHeight);
     renderer.render(scene,camera);
+
+
 }
 
 // 
