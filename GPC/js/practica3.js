@@ -1,8 +1,9 @@
 /**
- * Brazo robot seminario 2
+ * Brazo robot seminario 3
  * 
  * @author ariel96cs@gmail.com
  */
+
 
 // Modulos necesarios
 import * as THREE from "../lib/three.module.js"
@@ -14,7 +15,7 @@ let renderer, scene, camera;
 
 // Camaras adicionales
 let miniaturaCamera;
-const L = 8;
+const L = 4;
 
 // Controlador de camera
 let cameraControls;
@@ -39,7 +40,7 @@ function init(){
 
     // se añade el canvas 
     document.getElementById("container").appendChild(renderer.domElement);
-    // renderer.setClearColor(new THREE.Color(0,0,0.1));
+    renderer.setClearColor(new THREE.Color(1,1,1));
     renderer.autoClear = false
 
     // Escena
@@ -62,7 +63,7 @@ function init(){
     };
 
     // seleccionar el target que vamos a mirar
-    cameraControls.target.set(0,0,0.001);
+    cameraControls.target.set(0,0,0);
 
     // se añade el listener para el evento 
     window.addEventListener('resize',updateAspectRatio);
@@ -72,11 +73,11 @@ function setCameras(ar) {
 
     // Configurar miniCameraOrtografica
     var camaraOrtografica
-    camaraOrtografica = new THREE.OrthographicCamera(-L, L, L, -L, -1, 800);
+    camaraOrtografica = new THREE.OrthographicCamera(-L, L, L, -L, -2, 20);
     camaraOrtografica.lookAt(new THREE.Vector3(0, 0, 0));
 
     miniaturaCamera = camaraOrtografica.clone()
-    miniaturaCamera.position.set(0, L, 0);
+    miniaturaCamera.position.set(0, 10, 0);
     miniaturaCamera.up = new THREE.Vector3(0, 0, -1)
     miniaturaCamera.lookAt(new THREE.Vector3(0, 0, 0))
 
@@ -116,18 +117,17 @@ function updateAspectRatio(){
         miniaturaCamera.bottom = -L/ar; 
     }
     miniaturaCamera.updateProjectionMatrix();
-    // miniaturaCamera.updateMatrix();
+    camera.updateProjectionMatrix();
 }
 
 function loadScene(){
 
     // Crear una geometría para el suelo
-    const groundGeometry = new THREE.PlaneGeometry(1000, 10000); // Ancho y largo del suelo
+    const groundGeometry = new THREE.PlaneGeometry(1000, 1000,50,50); // Ancho y largo del suelo
 
     // Crear un material para el suelo
 
-    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00});
-     //new THREE.MeshNormalMaterial({wireframe: false, flatShading: true});// Color del suelo
+    const groundMaterial = new THREE.MeshNormalMaterial({wireframe: false, flatShading: true});// Color del suelo
 
     // Crear una malla para el suelo
     const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
@@ -210,8 +210,8 @@ function loadScene(){
     pinzaIzq.position.y = 2.2;
     pinzaDer.position.y = 2.2;
     // Separar las pinzas
-    pinzaIzq.position.z = 0.1;
-    pinzaDer.position.z = -0.1;
+    pinzaIzq.position.z = -0.1;
+    pinzaDer.position.z = 0.1;
 
     // trasladar las pinzas hacia adelante
     pinzaIzq.position.x = 0.1;
@@ -248,11 +248,13 @@ function loadScene(){
     // Se añade la mano al antebrazo
     antebrazo.add(mano);
     
-    // robot.scale.set(10,10,10);
+    const scale = 3;
+    robot.scale.set(scale,scale,scale);
     //se añade el robot a la escena
     scene.add(robot);
 
     robot.position.set(robotX,robotY,robotZ);
+    scene.add(new THREE.AxesHelper(1000));
 }
 
 function update(){
@@ -266,8 +268,8 @@ function render(){
     
 
     // Renderiza la vista miniatura en la esquina superior izquierda
-    var miniaturaSize = 150; // Tamaño de la vista miniatura
-    var padding = 10; // Espacio entre la vista miniatura y los bordes de la ventana
+    var miniaturaSize = 1/4*Math.min(window.innerHeight,window.innerWidth); // Tamaño de la vista miniatura
+    var padding = 0; // Espacio entre la vista miniatura y los bordes de la ventana
 
     renderer.setViewport(padding, window.innerHeight - miniaturaSize - padding, miniaturaSize, miniaturaSize);
     renderer.setScissor(padding, window.innerHeight - miniaturaSize - padding, miniaturaSize, miniaturaSize);
