@@ -202,7 +202,6 @@ function loadScene(){
 
     // Se crea la mano, que está formada por dos pinzas sobre un cilindro
     // se crea el material de la pinza
-    // const pinzasMaterial = new THREE.MeshNormalMaterial({wireframe: fa, flatShading: true}); //new THREE.MeshBasicMaterial({ color: 0x0000ff,wireframe: false }); // Color del robot
     const pinzaIzq = crearPinza(robotMaterial);
     const pinzaDer = crearPinza(robotMaterial);
     const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
