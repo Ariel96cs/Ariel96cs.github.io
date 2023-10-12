@@ -1,5 +1,6 @@
 /**
- * Brazo robot seminario 3
+ * Brazo robot practica 3
+ * Movimiento de cámaras
  * 
  * @author ariel96cs@gmail.com
  */

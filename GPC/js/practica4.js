@@ -1,5 +1,6 @@
 /**
- * Brazo robot seminario 3
+ * Brazo robot practica 4
+ * Interacción Animación
  * 
  * @author ariel96cs@gmail.com
  */
@@ -9,6 +10,8 @@
 import * as THREE from "../lib/three.module.js"
 import {OrbitControls} from "../lib/OrbitControls.module.js"
 import {Robot} from "./robot.js"
+import {GUI} from "../lib/lil-gui.module.min.js"
+import {TWEEN} from "../lib/tween.module.min.js"
 
 // Variables de consenso
 let renderer, scene, camera;
@@ -25,10 +28,15 @@ let robotX = 0;
 let robotY = 0;
 let robotZ = 0;
 
+let robot;
+
+let effectControler;
+
 // Acciones
 
 init();
 loadScene();
+setupGUI();
 render();
 
 
@@ -134,8 +142,8 @@ function loadScene(){
     scene.add(groundMesh);
 
     // Crear el robot
-    const robot = new Robot();
-    robot.setS
+    robot = new Robot();
+    
     //se añade el robot a la escena
     scene.add(robot);
 
@@ -145,15 +153,54 @@ function loadScene(){
 
     scene.add(new THREE.AxesHelper(1000));
 }
+function setupGUI(){  
+    // Definicion de los controles
+    effectControler = {
+        giroBase: 0.0,
+        giroBrazo:0.0,
+        giroAntebrazoY: 0.0,
+        giroAntebrazoZ: 0.0,
+        giroPinza: 0.0,
+        separacionPinza: 0.0,
+        colorAlambres: "rgb(255,255,255)",
+    }
 
-function update(){
+    // Creacion interfaz
+    const gui = new GUI();
+
+    // Construccion del menu de widgets
+    const menu = gui.addFolder('Control Robot');
+    menu.add(effectControler,'giroBase',-180,180,0.025).name('Giro Base');
+    menu.add(effectControler,'giroBrazo',-45,45,0.025).name('Giro Brazo');
+    menu.add(effectControler,'giroAntebrazoY',-180,180,0.025).name('Giro Antebrazo Y');
+    menu.add(effectControler,'giroAntebrazoZ',-90,90,0.025).name('Giro Antebrazo Z');
+    menu.add(effectControler,'giroPinza',-40,220,0.025).name('Giro Pinza');
+    menu.add(effectControler,'separacionPinza',0,15,0.025).name('Separacion Pinza');
+    menu.add(effectControler,'separacion',{'Ninguna':0,'Media':2,'Total':5}).name('Separacion');
+    menu.addColor(effectControler,'colorAlambres').name('Color alambres');
 
 }
 
-function render(){
+function update(delta){
+
+    TWEEN.update(delta);
+
+    // Actualizar el robot
+    robot.setGiroBase(effectControler.giroBase);
+    robot.setGiroBrazo(effectControler.giroBrazo,scene);
+    // robot.setGiroAntebrazoY(effectControler.giroAntebrazoY);
+    // robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ);
+    // robot.setGiroPinza(effectControler.giroPinza);
+    // robot.setSeparacionPinza(effectControler.separacionPinza);
+    // robot.setColorAlambres(effectControler.colorAlambres);
+    // robot.update();
+
+}
+
+function render(delta){
     renderer.clear();
     requestAnimationFrame(render);
-    update();
+    update(delta);
     
 
     // Renderiza la vista miniatura en la esquina superior izquierda

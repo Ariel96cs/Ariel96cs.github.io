@@ -10,21 +10,26 @@ import * as THREE from "../lib/three.module.js"
 export {Robot};
 
 class Robot extends THREE.Object3D{ 
-    constructor(){
+    constructor(scale=3){
         super();
         // crear el material del robot
         this.robotMaterial = new THREE.MeshNormalMaterial({wireframe: false, flatShading: true}); //new THREE.MeshBasicMaterial({ color: 0x0000ff,wireframe: false }); // Color del robot
 
         this.generateRobotGraph();
-        this.scaleRobot();
+        this.scaleRobot(scale);
     }
 
     generateRobotGraph(){
         const eje = this.createEje();
+        this.eje = eje;
         const esparrago = this.createEsparrago();
+        this.esparrago = esparrago;
         const rotula = this.createrotula();
+        this.rotula = rotula;
         const disco = this.createDisco();
+        this.disco = disco;
         const nervios = this.createNervios();
+        this.nervios = nervios;
         const mano = this.createHand();
 
         // Se crea el antebrazo, que está formado por el disco, los nervios y la mano
@@ -37,6 +42,7 @@ class Robot extends THREE.Object3D{
         antebrazo.add(mano);
         // Se añade el disco al antebrazo
         antebrazo.add(disco);
+        this.antebrazo = antebrazo;
 
         // Se crea el brazo, que está formado por el eje, el espárrago, la rótula y el antebrazo
         const brazo = new THREE.Object3D();
@@ -48,10 +54,10 @@ class Robot extends THREE.Object3D{
         brazo.add(rotula);
         // Se añade el antebrazo al brazo
         brazo.add(antebrazo);
-
+        this.brazo = brazo;
         // Se crea la base del robot
         const base = this.createBase();
-
+        this.base = base;
         // // Se crea el robot, que está formado por la base y el brazo
         // const robot = new THREE.Object3D();
         // // Se añade la base al robot
@@ -86,7 +92,7 @@ class Robot extends THREE.Object3D{
         const ejeMesh = new THREE.Mesh(ejeGeometry, this.robotMaterial);
         ejeMesh.position.y = 0.25; // Levantar el eje 0.6 unidades para que esté sobre la base
         // rotar eje 90 grados sobre el eje x para que este en vertical
-        ejeMesh.rotation.x = Math.PI / 2;
+        ejeMesh.rotateX(Math.PI / 2);
         return ejeMesh;
     }
 
@@ -176,6 +182,9 @@ class Robot extends THREE.Object3D{
     mano.add(pinzaDer);
     // Se añade el cilindro a la mano
     mano.add(cilindroMesh);
+    this.pinzaIzq = pinzaIzq;
+    this.pinzaDer = pinzaDer;
+    this.mano = mano;
 
     return mano;
     }
@@ -249,23 +258,16 @@ class Robot extends THREE.Object3D{
         this.position.set(x,y,z);
     }
 
-    // rotar la base del robot
-    rotateBase(angle){
-        this.rotation.y += angle;
+    setGiroBase(giro){
+        // girar la base
+        this.brazo.rotation.y = giro * Math.PI / 180;
+        this.base.rotation.y = giro * Math.PI / 180;
+        
     }
+    
+    setGiroBrazo(giro,scene){
 
-    // rotar el brazo del robot
-    rotateArm(angle){
-        this.children[1].rotation.z += angle;
-    }
+        
+}
 
-    // rotar el antebrazo del robot
-    rotateForearm(angle){
-        this.children[2].rotation.z += angle;
-    }
-
-    // rotar la mano del robot
-    rotateHand(angle){
-        this.children[3].rotation.y += angle;
-    }
 }

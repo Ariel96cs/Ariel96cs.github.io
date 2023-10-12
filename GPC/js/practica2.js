@@ -1,5 +1,6 @@
 /**
- * Brazo robot seminario 2
+ * Brazo robot practica 2
+ * Grafo y escena
  * 
  * @author ariel96cs@gmail.com
  */
