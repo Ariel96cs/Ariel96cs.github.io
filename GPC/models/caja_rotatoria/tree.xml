@@ -1,0 +1,42 @@
+<Object3D name="Sketchfab_Scene">
+  <Object3D name="Sketchfab_model">
+    <Object3D name="Collada_visual_scene_group">
+      <Object3D name="Floor001">
+        <Object3D name="defaultMaterial">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Icosphere001">
+        <Object3D name="defaultMaterial_1">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Well001">
+        <Object3D name="defaultMaterial_2">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Handle">
+        <Object3D name="defaultMaterial_3">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Handle_1">
+        <Object3D name="defaultMaterial_4">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Wall">
+        <Object3D name="defaultMaterial_5">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Inner">
+        <Object3D name="defaultMaterial_6">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Cube001">
+        <Object3D name="defaultMaterial_7">
+        </Object3D>
+      </Object3D>
+      <Object3D name="Main001">
+        <Object3D name="defaultMaterial_8">
+        </Object3D>
+      </Object3D>
+    </Object3D>
+  </Object3D>
+</Object3D>
