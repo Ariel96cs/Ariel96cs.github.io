@@ -26,7 +26,7 @@ import * as THREE from "../../lib/three.module.js"
 import {OrbitControls} from "../../lib/OrbitControls.module.js"
 import {GUI} from "../../lib/lil-gui.module.min.js"
 import {TWEEN} from "../../lib/tween.module.min.js"
-
+import * as CANNON from "../../lib/cannon-es.module.js"
 import {PlayBox} from "./playBox.js"
 
 // Variables de consenso
@@ -42,6 +42,10 @@ let cameraControls;
 // Otras variables globales
 let playBox;
 let effectControler;
+const timeStep = 1/60;
+const world = new CANNON.World({
+    gravity: new CANNON.Vec3(0,-9.81,0)
+});
 
 // Acciones
 
@@ -82,6 +86,10 @@ function init(){
 
     // seleccionar el target que vamos a mirar
     cameraControls.target.set(0,0,0);
+
+    // set camera position
+    camera.position.set(20,10,0);
+    camera.lookAt(new THREE.Vector3(0,0,0));
 
     // se añade el listener para el evento 
     window.addEventListener('resize',updateAspectRatio);
@@ -159,9 +167,9 @@ function loadScene(){
 
 
     // Añadadir objetos a la escena
-    playBox = new PlayBox();
-    playBox.addToScene(scene);   
-
+    playBox = new PlayBox(world);
+    playBox.addToScene(scene);  
+    
     scene.add(new THREE.AxesHelper(1000));
     // Llama a la función para visualizar la escena
     
@@ -180,8 +188,8 @@ function setupGUI(){
 
     // Construccion del menu de widgets
     const menu = gui.addFolder('Control Robot');
-    menu.add(effectControler,'rotateHandleLR',-0.25,0.25,0.005).name('Giro X');
-    menu.add(effectControler,'rotateHandleUD',-0.25,0.25,0.005).name('Giro Z');
+    menu.add(effectControler,'rotateHandleLR',-0.20,0.20,0.005).name('Giro X');
+    menu.add(effectControler,'rotateHandleUD',-0.20,0.20,0.005).name('Giro Z');
 
 }
 
@@ -192,9 +200,12 @@ function update(delta){
     // Actualizar el mesa rotatoria
     playBox.rotateHandleLR(effectControler.rotateHandleLR);
     playBox.rotateHandleUD(effectControler.rotateHandleUD);
-    // playBox.update(delta);
-    
 
+}
+
+function animate(){
+    world.step(timeStep);
+    playBox.animate();
 }
 
 function render(delta){
@@ -202,7 +213,7 @@ function render(delta){
     requestAnimationFrame(render);
     update(delta);
     
-
+    animate();
     // Renderiza la vista miniatura en la esquina superior izquierda
     var miniaturaSize = 1/4*Math.min(window.innerHeight,window.innerWidth); // Tamaño de la vista miniatura
     var padding = 0; // Espacio entre la vista miniatura y los bordes de la ventana
