@@ -17,6 +17,7 @@ class Robot extends THREE.Object3D{
 
         this.generateRobotGraph();
         this.scaleRobot(scale);
+        this.scaleValue = scale;
     }
 
     generateRobotGraph(){
@@ -64,7 +65,7 @@ class Robot extends THREE.Object3D{
         // robot.add(base);
         // // Se añade el brazo al robot
         // robot.add(brazo);
-
+        this.brazo.position.y = 0.25;
         this.add(base);
         this.add(brazo);
 
@@ -90,7 +91,7 @@ class Robot extends THREE.Object3D{
         // Se crea el eje
         const ejeGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.18, 32); // Radio superior, radio inferior, altura, número de caras
         const ejeMesh = new THREE.Mesh(ejeGeometry, this.robotMaterial);
-        ejeMesh.position.y = 0.25; // Levantar el eje 0.6 unidades para que esté sobre la base
+        // ejeMesh.position.y = 0.25; // Levantar el eje 0.6 unidades para que esté sobre la base
         // rotar eje 90 grados sobre el eje x para que este en vertical
         ejeMesh.rotateX(Math.PI / 2);
         return ejeMesh;
@@ -100,7 +101,7 @@ class Robot extends THREE.Object3D{
             // Se crea el esparrago
     const esparragoGeometry = new THREE.BoxGeometry(0.18, 1.2, 0.12); // Ancho, alto, profundidad
     const esparragoMesh = new THREE.Mesh(esparragoGeometry, this.robotMaterial);
-    esparragoMesh.position.y = 0.8; // Levantar el espárrago 1.1 unidades para que esté sobre el eje
+    esparragoMesh.position.y = 0.55; // Levantar el espárrago 1.1 unidades para que esté sobre el eje
     return esparragoMesh;
     }
 
@@ -108,7 +109,7 @@ class Robot extends THREE.Object3D{
             // Se crea la rótula
     const rotulaGeometry = new THREE.SphereGeometry(0.2, 32, 32); // Radio, número de caras en ancho y alto    
     const rotulaMesh = new THREE.Mesh(rotulaGeometry, this.robotMaterial);
-    rotulaMesh.position.y = 1.4; // Levantar la rótula 1.2 unidades para que esté sobre el espárrago
+    rotulaMesh.position.y = 1.15; // Levantar la rótula 1.2 unidades para que esté sobre el espárrago
     return rotulaMesh;
     }
 
@@ -116,7 +117,7 @@ class Robot extends THREE.Object3D{
         const discoGeometry = new THREE.CylinderGeometry(0.22, 0.22, 0.06, 32); // Radio superior, radio inferior, altura, número de caras
         const discoMesh = new THREE.Mesh(discoGeometry, this.robotMaterial);
         // Levantar el disco para que esté centrado sobre la rotula
-        discoMesh.position.y = 1.4;
+        discoMesh.position.y = 1.15;
         return discoMesh;
     }
 
@@ -141,7 +142,7 @@ class Robot extends THREE.Object3D{
 
         const nervio = new THREE.Mesh(nervioGeometry, this.robotMaterial);
 
-        nervio.position.set(x, 1.4+nervioHeight/2, z);
+        nervio.position.set(x, 1.15+nervioHeight/2, z);
         // antebrazo.add(nervio);
         nervios.push(nervio);
     }
@@ -159,13 +160,13 @@ class Robot extends THREE.Object3D{
     const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
     const cilindroMesh = new THREE.Mesh(cilindroGeometry, this.robotMaterial);
     // Levantar el cilindro para que esté sobre los nervios, los nervios deben entrar en el cilindro
-    cilindroMesh.position.y = 2.3;
+    cilindroMesh.position.y = 2.05;
     // Rotar el cilindro 90 grados sobre el eje X para que esté en vertical
     cilindroMesh.rotation.x = Math.PI / 2;
     
     // Levantar la pinza
-    pinzaIzq.position.y = 2.2;
-    pinzaDer.position.y = 2.2;
+    pinzaIzq.position.y = 1.95;
+    pinzaDer.position.y = 1.95;
     // Separar las pinzas
     pinzaIzq.position.z = -0.1;
     pinzaDer.position.z = 0.1;
@@ -191,7 +192,7 @@ class Robot extends THREE.Object3D{
 
     createPinza(){
 
-        const pinzasMaterial =this.robotMaterial;
+        const pinzasMaterial = this.robotMaterial;
         // crear la palma de la pinza
         const palma = new THREE.Mesh(new THREE.BoxGeometry(0.19,0.2,0.04),pinzasMaterial);
         // setting position at the 0,0,0
@@ -266,8 +267,22 @@ class Robot extends THREE.Object3D{
     }
     
     setGiroBrazo(giro,scene){
+        // Rotar el brazo sobre el eje del cilindro
+        
+        const angle = giro * Math.PI / 180;
+        this.brazo.rotation.z = angle;
 
         
-}
+    }
+
+    setGiroAntebrazoY(giro,scene){
+        const angle = giro * Math.PI / 180;
+        this.antebrazo.rotation.y = angle;
+    }
+
+    setGiroAntebrazoZ(giro,scene){
+        const angle = giro * Math.PI / 180;
+        this.antebrazo.rotation.z = angle;
+    }
 
 }
