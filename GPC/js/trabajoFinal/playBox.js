@@ -10,8 +10,6 @@ import * as CANNON from "../../lib/cannon-es.module.js"
 import { findObjectByNameRecursive,object3DToXML } from "./utils.js";
 export {PlayBox};
 
-
-
 class PlayBox extends THREE.Object3D{
     constructor(world,scale=3){
         super();
@@ -54,7 +52,7 @@ class PlayBox extends THREE.Object3D{
         this.physicGroundMaze = new CANNON.Body({
             mass: 0,
             shape: new CANNON.Plane(),
-            position: new CANNON.Vec3(0,-1,0)
+            // position: new CANNON.Vec3(0,,0)
         });
         // rotar el suelo para que quede plano
         this.physicGroundMaze.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);

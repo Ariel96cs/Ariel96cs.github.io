@@ -18,6 +18,7 @@ class Robot extends THREE.Object3D{
         this.generateRobotGraph();
         this.scaleRobot(scale);
         this.scaleValue = scale;
+        this.pinzasSep = this.pinzaIzq.position.z;
     }
 
     generateRobotGraph(){
@@ -32,7 +33,7 @@ class Robot extends THREE.Object3D{
         const nervios = this.createNervios();
         this.nervios = nervios;
         const mano = this.createHand();
-
+        mano.position.y = 0.9;
         // Se crea el antebrazo, que está formado por el disco, los nervios y la mano
         const antebrazo = new THREE.Object3D();
         // Se añaden los nervios al antebrazo
@@ -154,20 +155,16 @@ class Robot extends THREE.Object3D{
     createHand(){
     // Se crea la mano, que está formada por dos pinzas sobre un cilindro
     const mano = new THREE.Object3D();
-    // se crea el material de la pinza
-    // const pinzasMaterial = new THREE.MeshNormalMaterial({wireframe: fa, flatShading: true}); //new THREE.MeshBasicMaterial({ color: 0x0000ff,wireframe: false }); // Color del robot
     const pinzaIzq = this.createPinza(this.robotMaterial);
     const pinzaDer = this.createPinza(this.robotMaterial);
     const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
     const cilindroMesh = new THREE.Mesh(cilindroGeometry, this.robotMaterial);
-    // Levantar el cilindro para que esté sobre los nervios, los nervios deben entrar en el cilindro
-    cilindroMesh.position.y = 0.9;
-    // Rotar el cilindro 90 grados sobre el eje X para que esté en vertical
+
     cilindroMesh.rotation.x = Math.PI / 2;
     
     // Levantar la pinza
-    pinzaIzq.position.y = 0.8;
-    pinzaDer.position.y = 0.8;
+    // pinzaIzq.position.y = 0.8;
+    // pinzaDer.position.y = 0.8;
     // Separar las pinzas
     pinzaIzq.position.z = -0.1;
     pinzaDer.position.z = 0.1;
@@ -197,7 +194,7 @@ class Robot extends THREE.Object3D{
         // crear la palma de la pinza
         const palma = new THREE.Mesh(new THREE.BoxGeometry(0.19,0.2,0.04),pinzasMaterial);
         // setting position at the 0,0,0
-        palma.position.y = 0.1; 
+        // palma.position.y = 0.1; 
     
         // crear el dedo de la pinza
         // el dedo es un prisma que tiene bases rectangulares y caras laterales trapezoidales
@@ -236,7 +233,7 @@ class Robot extends THREE.Object3D{
         dedoMesh.rotateX(Math.PI/2);
     
         // levantar el dedo 0.1 unidades para que esté centrado sobre la palma
-        dedoMesh.position.y = palma.position.y*2;
+        dedoMesh.position.y = 0.1;
         dedoMesh.position.x = 0.19/2;
         dedoMesh.position.z = 0.04/2;
     
@@ -267,7 +264,7 @@ class Robot extends THREE.Object3D{
         
     }
     
-    setGiroBrazo(giro,scene){
+    setGiroBrazo(giro){
         // Rotar el brazo sobre el eje del cilindro
         
         const angle = giro * Math.PI / 180;
@@ -276,14 +273,26 @@ class Robot extends THREE.Object3D{
         
     }
 
-    setGiroAntebrazoY(giro,scene){
+    setGiroAntebrazoY(giro){
         const angle = giro * Math.PI / 180;
         this.antebrazo.rotation.y = angle;
     }
 
-    setGiroAntebrazoZ(giro,scene){
+    setGiroAntebrazoZ(giro){
         const angle = giro * Math.PI / 180;
         this.antebrazo.rotation.z = angle;
     }
 
+    setGiroPinza(giro){
+        const angle = giro * Math.PI / 180;
+        this.mano.rotation.z = angle;
+    }
+    setSeparacionPinza(sep){
+        this.pinzaIzq.position.z = -sep/85;
+        this.pinzaDer.position.z = sep/85;
+    }
+
+    setSolidAlambres(solid){
+        this.robotMaterial.wireframe = !solid;
+    }
 }

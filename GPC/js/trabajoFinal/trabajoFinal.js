@@ -2,14 +2,6 @@
  * Trabajo final GPC
  * Laberinto 3D rotativo con texturas
  * 
- * Se trata de un laberinto circular en 3D que gira sobre sí mismo. 
- * Al comenzar el juego, se pone una bola en el centro del laberinto y el usuario debe
- * rotar el tablero para que la bola llegue al final del laberinto, donde hay un agujero.
- * 
- * Las paredes del laberinto tienen texturas de ladrillo y el suelo tiene una textura de
- * madera. La bola tiene una textura de mármol. A medida que pasa el tiempo   
- * van apareciendo más bolas en el tablero que aparecen en el centro. El usuario debe
- * colar todas las bolas en el agujero sin que se caigan del tablero.
  *  
  * Las rotaciones del tablero se hacen con las flechas del teclado.
  * Al pulsar la tecla 'r' se reinicia el juego.

@@ -162,7 +162,7 @@ function setupGUI(){
         giroAntebrazoZ: 0.0,
         giroPinza: 0.0,
         separacionPinza: 0.0,
-        colorAlambres: "rgb(255,255,255)",
+        solidAlambres: false,
     }
 
     // Creacion interfaz
@@ -175,10 +175,13 @@ function setupGUI(){
     menu.add(effectControler,'giroAntebrazoY',-180,180,0.025).name('Giro Antebrazo Y');
     menu.add(effectControler,'giroAntebrazoZ',-90,90,0.025).name('Giro Antebrazo Z');
     menu.add(effectControler,'giroPinza',-40,220,0.025).name('Giro Pinza');
+    // setear el valor inicial de la separacion de la pinza
+    effectControler.separacionPinza = 15;
     menu.add(effectControler,'separacionPinza',0,15,0.025).name('Separacion Pinza');
-    menu.add(effectControler,'separacion',{'Ninguna':0,'Media':2,'Total':5}).name('Separacion');
-    menu.addColor(effectControler,'colorAlambres').name('Color alambres');
+    // añadir un  checkbox para cambiar entre sólido y alambres
+    menu.add(effectControler,'solidAlambres').name('Solid/Alambres');
     
+
 }
 
 function update(delta){
@@ -187,13 +190,13 @@ function update(delta){
 
     // Actualizar el robot          
     robot.setGiroBase(effectControler.giroBase);
-    robot.setGiroBrazo(effectControler.giroBrazo,scene);
-    robot.setGiroAntebrazoY(effectControler.giroAntebrazoY,scene);
-    robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ,scene);
-    // robot.setGiroPinza(effectControler.giroPinza);
-    // robot.setSeparacionPinza(effectControler.separacionPinza);
-    // robot.setColorAlambres(effectControler.colorAlambres);
-    // robot.update();
+    robot.setGiroBrazo(effectControler.giroBrazo);
+    robot.setGiroAntebrazoY(effectControler.giroAntebrazoY);
+    robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ);
+    robot.setGiroPinza(effectControler.giroPinza);
+    robot.setSeparacionPinza(effectControler.separacionPinza);
+    robot.setSolidAlambres(effectControler.solidAlambres);
+    
 
 }
 
