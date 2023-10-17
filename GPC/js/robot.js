@@ -44,6 +44,7 @@ class Robot extends THREE.Object3D{
         // Se añade el disco al antebrazo
         antebrazo.add(disco);
         this.antebrazo = antebrazo;
+        this.antebrazo.position.y = 1.15;
 
         // Se crea el brazo, que está formado por el eje, el espárrago, la rótula y el antebrazo
         const brazo = new THREE.Object3D();
@@ -117,7 +118,7 @@ class Robot extends THREE.Object3D{
         const discoGeometry = new THREE.CylinderGeometry(0.22, 0.22, 0.06, 32); // Radio superior, radio inferior, altura, número de caras
         const discoMesh = new THREE.Mesh(discoGeometry, this.robotMaterial);
         // Levantar el disco para que esté centrado sobre la rotula
-        discoMesh.position.y = 1.15;
+        // discoMesh.position.y = 1.15;
         return discoMesh;
     }
 
@@ -142,7 +143,7 @@ class Robot extends THREE.Object3D{
 
         const nervio = new THREE.Mesh(nervioGeometry, this.robotMaterial);
 
-        nervio.position.set(x, 1.15+nervioHeight/2, z);
+        nervio.position.set(x, nervioHeight/2, z);
         // antebrazo.add(nervio);
         nervios.push(nervio);
     }
@@ -160,13 +161,13 @@ class Robot extends THREE.Object3D{
     const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
     const cilindroMesh = new THREE.Mesh(cilindroGeometry, this.robotMaterial);
     // Levantar el cilindro para que esté sobre los nervios, los nervios deben entrar en el cilindro
-    cilindroMesh.position.y = 2.05;
+    cilindroMesh.position.y = 0.9;
     // Rotar el cilindro 90 grados sobre el eje X para que esté en vertical
     cilindroMesh.rotation.x = Math.PI / 2;
     
     // Levantar la pinza
-    pinzaIzq.position.y = 1.95;
-    pinzaDer.position.y = 1.95;
+    pinzaIzq.position.y = 0.8;
+    pinzaDer.position.y = 0.8;
     // Separar las pinzas
     pinzaIzq.position.z = -0.1;
     pinzaDer.position.z = 0.1;

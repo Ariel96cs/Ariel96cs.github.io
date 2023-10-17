@@ -178,18 +178,18 @@ function setupGUI(){
     menu.add(effectControler,'separacionPinza',0,15,0.025).name('Separacion Pinza');
     menu.add(effectControler,'separacion',{'Ninguna':0,'Media':2,'Total':5}).name('Separacion');
     menu.addColor(effectControler,'colorAlambres').name('Color alambres');
-
+    
 }
 
 function update(delta){
 
     TWEEN.update(delta);
 
-    // Actualizar el robot
+    // Actualizar el robot          
     robot.setGiroBase(effectControler.giroBase);
     robot.setGiroBrazo(effectControler.giroBrazo,scene);
-    // robot.setGiroAntebrazoY(effectControler.giroAntebrazoY);
-    // robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ);
+    robot.setGiroAntebrazoY(effectControler.giroAntebrazoY,scene);
+    robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ,scene);
     // robot.setGiroPinza(effectControler.giroPinza);
     // robot.setSeparacionPinza(effectControler.separacionPinza);
     // robot.setColorAlambres(effectControler.colorAlambres);
