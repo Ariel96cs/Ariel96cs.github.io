@@ -161,8 +161,8 @@ function setupGUI(){
         giroAntebrazoY: 0.0,
         giroAntebrazoZ: 0.0,
         giroPinza: 0.0,
-        separacionPinza: 0.0,
-        solidAlambres: false,
+        separacionPinza: 10.0,
+        solidAlambres: true,
     }
 
     // Creacion interfaz
@@ -170,23 +170,36 @@ function setupGUI(){
 
     // Construccion del menu de widgets
     const menu = gui.addFolder('Control Robot');
-    menu.add(effectControler,'giroBase',-180,180,0.025).name('Giro Base');
-    menu.add(effectControler,'giroBrazo',-45,45,0.025).name('Giro Brazo');
-    menu.add(effectControler,'giroAntebrazoY',-180,180,0.025).name('Giro Antebrazo Y');
-    menu.add(effectControler,'giroAntebrazoZ',-90,90,0.025).name('Giro Antebrazo Z');
-    menu.add(effectControler,'giroPinza',-40,220,0.025).name('Giro Pinza');
-    // setear el valor inicial de la separacion de la pinza
-    effectControler.separacionPinza = 15;
+    menu.add(effectControler,'giroBase',-180,180,0.025).name('Giro Base').listen();
+    menu.add(effectControler,'giroBrazo',-45,45,0.025).name('Giro Brazo').listen();
+    menu.add(effectControler,'giroAntebrazoY',-180,180,0.025).name('Giro Antebrazo Y').listen();
+    menu.add(effectControler,'giroAntebrazoZ',-90,90,0.025).name('Giro Antebrazo Z').listen();
+    menu.add(effectControler,'giroPinza',-40,220,0.025).name('Giro Pinza').listen();
     menu.add(effectControler,'separacionPinza',0,15,0.025).name('Separacion Pinza');
-    // añadir un  checkbox para cambiar entre sólido y alambres
     menu.add(effectControler,'solidAlambres').name('Solid/Alambres');
-    
+    // añadir  boton para lanzar animacion de robot
+    menu.add({playAnimation: function(){
+        playAnimation();
+    }},'playAnimation').name('Animacion');
 
+}
+function playAnimation(){
+    let animation1 = robot.animationGiroBrazo();
+    let animation2 = robot.animationGiroAntebrazo();
+
+    animation1.onUpdate(() => {
+        console.log("Arm Rotation Animation Progress: " + robot.brazo.rotation.y);
+      });
+      
+      animation2.onUpdate(() => {
+        console.log("Antebrazo Rotation Animation Progress: " + robot.antebrazo.rotation.y);
+      });  
+
+    animation1.chain(animation2);
+    animation1.start();
 }
 
 function update(delta){
-
-    TWEEN.update(delta);
 
     // Actualizar el robot          
     robot.setGiroBase(effectControler.giroBase);
@@ -197,7 +210,7 @@ function update(delta){
     robot.setSeparacionPinza(effectControler.separacionPinza);
     robot.setSolidAlambres(effectControler.solidAlambres);
     
-
+    TWEEN.update(delta);
 }
 
 function render(delta){

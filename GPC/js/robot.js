@@ -6,6 +6,7 @@
 
 // Modulos necesarios
 import * as THREE from "../lib/three.module.js"
+import {TWEEN} from "../lib/tween.module.min.js"
 
 export {Robot};
 
@@ -269,8 +270,6 @@ class Robot extends THREE.Object3D{
         
         const angle = giro * Math.PI / 180;
         this.brazo.rotation.z = angle;
-
-        
     }
 
     setGiroAntebrazoY(giro){
@@ -294,5 +293,33 @@ class Robot extends THREE.Object3D{
 
     setSolidAlambres(solid){
         this.robotMaterial.wireframe = !solid;
+    }
+
+    animationGiroBrazo(){
+        const anim = new TWEEN.Tween(this.brazo.rotation)
+        .to({x:[0,0],y:[0,-Math.PI/2],z:[0,0]},1000)
+        .interpolation(TWEEN.Interpolation.Bezier)
+        .easing(TWEEN.Easing.Bounce.Out)
+        .onStart(() => {    
+            console.log("start  giro brazo");
+        });
+       
+        return anim;
+    }
+
+    animationGiroAntebrazo(){
+        const anim = new TWEEN.Tween(this.antebrazo.rotation)
+        .to({y:[0,Math.PI/2],x:[0,0],z:[0,1]},1000)
+        .interpolation(TWEEN.Interpolation.Bezier)
+        .easing(TWEEN.Easing.Bounce.Out)
+        .onStart(() => {
+            console.log("start  giro antebrazo");
+        });
+        
+        return anim;
+    }
+
+    animationApagar(){
+
     }
 }
