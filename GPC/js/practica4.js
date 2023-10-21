@@ -152,6 +152,9 @@ function loadScene(){
     robot.addToScene(scene);
 
     scene.add(new THREE.AxesHelper(1000));
+
+    // events
+    
 }
 function setupGUI(){  
     // Definicion de los controles
@@ -184,18 +187,7 @@ function setupGUI(){
 
 }
 function playAnimation(){
-    let animation1 = robot.animationGiroBrazo();
-    let animation2 = robot.animationGiroAntebrazo();
-
-    animation1.onUpdate(() => {
-        console.log("Arm Rotation Animation Progress: " + robot.brazo.rotation.y);
-      });
-      
-      animation2.onUpdate(() => {
-        console.log("Antebrazo Rotation Animation Progress: " + robot.antebrazo.rotation.y);
-      });  
-
-    animation1.chain(animation2);
+    let animation1 = robot.animationShutDown();
     animation1.start();
 }
 

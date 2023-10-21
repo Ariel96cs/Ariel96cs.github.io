@@ -20,6 +20,7 @@ class Robot extends THREE.Object3D{
         this.scaleRobot(scale);
         this.scaleValue = scale;
         this.pinzasSep = this.pinzaIzq.position.z;
+
     }
 
     generateRobotGraph(){
@@ -287,8 +288,12 @@ class Robot extends THREE.Object3D{
         this.mano.rotation.z = angle;
     }
     setSeparacionPinza(sep){
-        this.pinzaIzq.position.z = -sep/85;
-        this.pinzaDer.position.z = sep/85;
+        const pIni = 0.02;
+        const pFin = 0.2;
+       
+        this.pinzaIzq.position.z = -pIni - pFin/15 * sep;
+        this.pinzaDer.position.z = pIni+pFin/15 * sep;
+        
     }
 
     setSolidAlambres(solid){
@@ -306,6 +311,34 @@ class Robot extends THREE.Object3D{
        
         return anim;
     }
+    animationShutDown(){
+        const anim1 = new TWEEN.Tween({angulo:0,antebrazoAngulo:0,separacion:5})
+                    .to({angulo:[20,-30],antebrazoAngulo:[20,-90],separacion:[10,3]},10000)
+                    .interpolation(TWEEN.Interpolation.Bezier)
+                    .easing(TWEEN.Easing.Bounce.Out)
+                    .onUpdate((obj) => {
+                        this.setGiroBrazo(obj.angulo);
+                        this.setGiroAntebrazoZ(obj.antebrazoAngulo);
+                        this.setSeparacionPinza(obj.separacion);
+                    });
+
+        // anim1.chain(anim2);
+        return anim1;
+    }
+        animationTurnOn(){
+        const anim1 = new TWEEN.Tween({angulo:0,antebrazoAngulo:0, separacion:0})
+                    .to({angulo:[-30,20,0],antebrazoAngulo:[-90,20,0],separacion:[0,5]},10000)
+                    .interpolation(TWEEN.Interpolation.Bezier)
+                    .easing(TWEEN.Easing.Bounce.Out)
+                    .onUpdate((obj) => {
+                        this.setGiroBrazo(obj.angulo);
+                        this.setGiroAntebrazoZ(obj.antebrazoAngulo);
+                        this.setSeparacionPinza(obj.separacion);
+                    });
+
+        // anim1.chain(anim2);
+        return anim1;
+    }
 
     animationGiroAntebrazo(){
         const anim = new TWEEN.Tween(this.antebrazo.rotation)
@@ -319,7 +352,4 @@ class Robot extends THREE.Object3D{
         return anim;
     }
 
-    animationApagar(){
-
-    }
 }
