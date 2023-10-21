@@ -25,9 +25,6 @@ const L = 4;
 let cameraControls;
 
 // Otras variables globales
-let robotX = 0;
-let robotY = 0;
-let robotZ = 0;
 let stats;
 
 let robot;
@@ -44,7 +41,7 @@ render();
 
 function init(){
     // Motor de render
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({antialias:true});
     // se setea a toda la pantalla del navegador
     renderer.setSize(window.innerWidth,window.innerHeight);
 
@@ -80,7 +77,7 @@ function init(){
     scene.add(ambiental);
 
     const direccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
-    direccional.position.set(-1,1,-1);
+    direccional.position.set(-1,5,-1);
     direccional.castShadow = true;
     scene.add(direccional);
 
@@ -88,10 +85,10 @@ function init(){
     puntual.position.set(2,7,-4);
     scene.add(puntual);
 
-    const focal = new THREE.SpotLight(0xFFFFFF,0.3);
-    focal.position.set(-2,7,4);
+    const focal = new THREE.SpotLight(0xFFFFFF,0.4);
+    focal.position.set(-99,-10,-10);
     focal.target.position.set(0,0,0);
-    focal.angle = Math.PI/7;
+    focal.angle = Math.PI;
     focal.penumbra = 0.3;
     focal.castShadow = true;
     scene.add(focal);
@@ -188,15 +185,28 @@ function updateAspectRatio(){
     miniaturaCamera.updateProjectionMatrix();
     camera.updateProjectionMatrix();
 }
+function enableCastShadow(object) {
+    if (object instanceof THREE.Object3D) {
+        object.castShadow = true; // Enable castShadow for the current object
+        object.children.forEach((child) => enableCastShadow(child)); // Recursively enable castShadow for children
+    }
+}
+
+function enableReceiveShadow(object) {
+    if (object instanceof THREE.Object3D) {
+        object.receiveShadow = true; // Enable receiveShadow for the current object
+        object.children.forEach((child) => enableReceiveShadow(child)); // Recursively enable receiveShadow for children
+    }
+}
 
 function loadScene(){
 
     // Crear una geometría para el suelo
-    const groundGeometry = new THREE.PlaneGeometry(100, 100,5,5); // Ancho y largo del suelo
+    const groundGeometry = new THREE.PlaneGeometry(50, 50,2,2); // Ancho y largo del suelo
 
     // Crear un material para el suelo
     const groundTex = new THREE.TextureLoader().load('./imgs/pisometalico_1024.jpg');
-    groundTex.repeat.set(5,5);
+    groundTex.repeat.set(2,2);
     groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
     groundTex.magFilter = THREE.LinearFilter;
     groundTex.minFilter = THREE.LinearFilter;
@@ -206,24 +216,43 @@ function loadScene(){
     // Crear una malla para el suelo
     const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
     groundMesh.rotation.x = -Math.PI / 2; // Rotar el suelo para que sea horizontal en el plano XZ
+    groundMesh.receiveShadow = true;
     scene.add(groundMesh);
 
     // Crear el robot
     robot = new Robot(3,true);
-    robot.castShadow = true;
-    robot.receiveShadow = true;
-
+    enableCastShadow(robot);
+    enableReceiveShadow(robot);
     
     //se añade el robot a la escena
     scene.add(robot);
 
     // Posicionar el robot
-    robot.setPosition(robotX,robotY,robotZ);
+    // robot.setPosition(robotX,robotY,robotZ);
     robot.addToScene(scene);
+
+
+    // Habitacion
+    const paredes = [];
+    paredes.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
+                                            map:new THREE.TextureLoader().load("./imgs/posx.jpg")}));
+    paredes.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
+                                            map:new THREE.TextureLoader().load("./imgs/negx.jpg")}));
+    paredes.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
+                                            map:new THREE.TextureLoader().load("./imgs/posy.jpg")}));
+    paredes.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
+                                            map:new THREE.TextureLoader().load("./imgs/negy.jpg")}));
+    paredes.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
+                                            map:new THREE.TextureLoader().load("./imgs/posz.jpg")}));
+    paredes.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
+                                            map:new THREE.TextureLoader().load("./imgs/negz.jpg")}));
+
+    const geoHabitacion = new THREE.BoxGeometry(50,50,25);
+    const habitacion = new THREE.Mesh(geoHabitacion,paredes);
+    scene.add(habitacion);
 
     scene.add(new THREE.AxesHelper(1000));
 
-    // events
     
 }
 function setupGUI(){  
@@ -264,11 +293,11 @@ function playAnimation(){
 function update(delta){
 
     // Actualizar el robot          
-    robot.setGiroBase(effectControler.giroBase);
-    robot.setGiroBrazo(effectControler.giroBrazo);
-    robot.setGiroAntebrazoY(effectControler.giroAntebrazoY);
-    robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ);
-    robot.setGiroPinza(effectControler.giroPinza);
+    robot.rotation.set(0,effectControler.giroBase*Math.PI / 180,0);
+    robot.brazo.rotation.set(0,0,effectControler.giroBrazo*Math.PI / 180);
+    robot.antebrazo.rotation.set(0,effectControler.giroAntebrazoY*Math.PI / 180,0);
+    robot.antebrazo.rotation.set(0,0,effectControler.giroAntebrazoZ*Math.PI / 180);
+    robot.mano.rotation.set(0,0,effectControler.giroPinza*Math.PI / 180);
     robot.setSeparacionPinza(effectControler.separacionPinza);
     robot.setSolidAlambres(effectControler.solidAlambres);
     

@@ -29,7 +29,7 @@ class Robot extends THREE.Object3D{
         this.pinzasMaterial = new THREE.MeshLambertMaterial({map: metalTex, color:'gray'});
         this.rotulaMaterial = new THREE.MeshPhongMaterial({envMap: entornoTex, color:'white',
                                                                                 specular:'gray',
-                                                                                shininess: 30,});
+                                                                                shininess: 30});
         
         this.applyTextures = applytextures;
         this.generateRobotGraph();
@@ -85,9 +85,10 @@ class Robot extends THREE.Object3D{
         // robot.add(base);
         // // Se añade el brazo al robot
         // robot.add(brazo);
-        this.brazo.position.y = 0.25;
+        this.brazo.position.y = 0;
+        base.add(brazo)
         this.add(base);
-        this.add(brazo);
+        // this.add(brazo);
 
         return this;
     }
@@ -104,6 +105,8 @@ class Robot extends THREE.Object3D{
         const material = this.applyTextures ? this.baseMaterial : this.robotMaterial;
         const baseMesh = new THREE.Mesh(baseGeometry, material);
         baseMesh.position.y = 0.1; // Levantar la base 0.1 unidades para que no esté enterrada en el suelo
+        baseMesh.receiveShadow = true;
+        baseMesh.castShadow = true;
 
         return baseMesh;
     }
@@ -116,6 +119,8 @@ class Robot extends THREE.Object3D{
         // ejeMesh.position.y = 0.25; // Levantar el eje 0.6 unidades para que esté sobre la base
         // rotar eje 90 grados sobre el eje x para que este en vertical
         ejeMesh.rotateX(Math.PI / 2);
+        ejeMesh.receiveShadow = true;
+        ejeMesh.castShadow = true;
         return ejeMesh;
     }
 
@@ -134,6 +139,8 @@ class Robot extends THREE.Object3D{
     const material = this.applyTextures ? this.rotulaMaterial : this.robotMaterial;
     const rotulaMesh = new THREE.Mesh(rotulaGeometry, material);
     rotulaMesh.position.y = 1.15; // Levantar la rótula 1.2 unidades para que esté sobre el espárrago
+    rotulaMesh.receiveShadow = true;
+    rotulaMesh.castShadow = true;
     return rotulaMesh;
     }
 
@@ -143,6 +150,8 @@ class Robot extends THREE.Object3D{
         const discoMesh = new THREE.Mesh(discoGeometry, material);
         // Levantar el disco para que esté centrado sobre la rotula
         // discoMesh.position.y = 1.15;
+        discoMesh.receiveShadow = true; 
+        discoMesh.castShadow = true;
         return discoMesh;
     }
 
@@ -166,6 +175,8 @@ class Robot extends THREE.Object3D{
         const z = Math.sin(angle) * radiusPrisms;
 
         const nervio = new THREE.Mesh(nervioGeometry, material);
+        nervio.receiveShadow = true;
+        nervio.castShadow = true;
 
         nervio.position.set(x, nervioHeight/2, z);
         // antebrazo.add(nervio);
@@ -175,51 +186,7 @@ class Robot extends THREE.Object3D{
 
     }
 
-    createHand(){
-    // Se crea la mano, que está formada por dos pinzas sobre un cilindro
-    const mano = new THREE.Object3D();
-    const material = this.applyTextures ? this.pinzasMaterial : this.robotMaterial;
-    const pinzaIzq = this.createPinza(material);
-    const pinzaDer = this.createPinza(material);
-    const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
-    const cilindroMesh = new THREE.Mesh(cilindroGeometry, material); 
-
-    cilindroMesh.rotation.x = Math.PI / 2;
-    
-    // Levantar la pinza
-    // pinzaIzq.position.y = 0.8;
-    // pinzaDer.position.y = 0.8;
-    // Separar las pinzas
-    pinzaIzq.position.z = -0.1;
-    pinzaDer.position.z = 0.1;
-
-    // trasladar las pinzas hacia adelante
-    pinzaIzq.position.x = 0.1;
-    pinzaDer.position.x = 0.1;
-
-    pinzaDer.scale.z = -1; // Invertir la pinza derecha para que ambas pinzas estén enfrentadas
-
-    // Se añade la pinza izquierda a la mano
-    mano.add(pinzaIzq);
-    // // Se añade la pinza derecha a la mano
-    mano.add(pinzaDer);
-    // Se añade el cilindro a la mano
-    mano.add(cilindroMesh);
-    this.pinzaIzq = pinzaIzq;
-    this.pinzaDer = pinzaDer;
-    this.mano = mano;
-
-    return mano;
-    }
-
-    createPinza(material){
-
-
-        // crear la palma de la pinza
-        const palma = new THREE.Mesh(new THREE.BoxGeometry(0.19,0.2,0.04),material);
-        // setting position at the 0,0,0
-        // palma.position.y = 0.1; 
-    
+    createDedoGeo(){
         // crear el dedo de la pinza
         // el dedo es un prisma que tiene bases rectangulares y caras laterales trapezoidales
         const dedo = new THREE.BufferGeometry();
@@ -250,8 +217,71 @@ class Robot extends THREE.Object3D{
         
         dedo.setIndex(new THREE.BufferAttribute(indices,1));
         dedo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
-        const dedoMesh = new THREE.Mesh(dedo,material);
+
+        dedo.computeVertexNormals();
     
+        return dedo;
+    }
+
+    createHand(){
+    // Se crea la mano, que está formada por dos pinzas sobre un cilindro
+    const mano = new THREE.Object3D();
+    let material = this.applyTextures ? this.antebrazoMaterial : this.robotMaterial;
+    
+    const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
+    const cilindroMesh = new THREE.Mesh(cilindroGeometry, material); 
+    cilindroMesh.rotation.x = Math.PI / 2;
+    cilindroMesh.receiveShadow = true;
+    cilindroMesh.castShadow = true;
+    
+    const palmaGeo = new THREE.BoxGeometry(0.19,0.2,0.04);
+    const dedoGeo = this.createDedoGeo();
+    
+    material = this.applyTextures ? this.pinzasMaterial : this.robotMaterial;
+    const pinzaIzq = this.createPinza(dedoGeo,palmaGeo,material);
+    const pinzaDer = this.createPinza(dedoGeo,palmaGeo,material);
+
+    // Levantar la pinza
+    // pinzaIzq.position.y = 0.8;
+    // pinzaDer.position.y = 0.8;
+    // Separar las pinzas
+    pinzaIzq.position.z = -0.1;
+    pinzaDer.position.z = 0.1;
+
+    // trasladar las pinzas hacia adelante
+    pinzaIzq.position.x = 0.1;
+    pinzaDer.position.x = 0.1;
+
+    pinzaDer.scale.z = -1; // Invertir la pinza derecha para que ambas pinzas estén enfrentadas
+    
+    // Se añade la pinza izquierda a la mano
+    mano.add(pinzaIzq);
+    // // Se añade la pinza derecha a la mano
+    mano.add(pinzaDer);
+    // Se añade el cilindro a la mano
+    mano.add(cilindroMesh);
+    this.pinzaIzq = pinzaIzq;
+    this.pinzaDer = pinzaDer;
+    this.mano = mano;
+
+    return mano;
+    }
+
+    createPinza(dedoGeo,palmaGeo,material){
+
+
+        // crear la palma de la pinza
+        const palma = new THREE.Mesh(palmaGeo,material);
+        // setting position at the 0,0,0
+        // palma.position.y = 0.1; 
+        palma.receiveShadow = true;
+        palma.castShadow = true;
+
+        
+        const dedoMesh = new THREE.Mesh(dedoGeo,material);
+        dedoMesh.receiveShadow = true;
+        dedoMesh.castShadow = true;
+
         // rotar 90 grados sobre el eje y 
         dedoMesh.rotateY(Math.PI/2);
         dedoMesh.rotateX(Math.PI/2);
@@ -283,8 +313,8 @@ class Robot extends THREE.Object3D{
 
     setGiroBase(giro){
         // girar la base
-        this.brazo.rotation.y = giro * Math.PI / 180;
-        this.base.rotation.y = giro * Math.PI / 180;
+        // this.brazo.rotation.y = giro * Math.PI / 180;
+        this.rotation.y = giro * Math.PI / 180;
         
     }
     
