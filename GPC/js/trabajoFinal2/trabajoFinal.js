@@ -1,17 +1,15 @@
 /**
- * Brazo robot practica 4
- * Interacción Animación
- * 
- * @author ariel96cs@gmail.com
+ * Trabajo final GPC
+ * author: Ariel Coto Santiesteban
+ * email: acotsan@upv.edu.es
  */
 
-
 // Modulos necesarios
-import * as THREE from "../lib/three.module.js"
-import {OrbitControls} from "../lib/OrbitControls.module.js"
-import {Robot} from "./robot.js"
-import {GUI} from "../lib/lil-gui.module.min.js"
-import {TWEEN} from "../lib/tween.module.min.js"
+import * as THREE from "../../lib/three.module.js"
+import {OrbitControls} from "../../lib/OrbitControls.module.js"
+import {GUI} from "../../lib/lil-gui.module.min.js"
+import {TWEEN} from "../../lib/tween.module.min.js"
+import * as CANNON from "../../lib/cannon-es.module.js"
 
 // Variables de consenso
 let renderer, scene, camera;
@@ -24,13 +22,12 @@ const L = 4;
 let cameraControls;
 
 // Otras variables globales
-let robotX = 0;
-let robotY = 0;
-let robotZ = 0;
-
-let robot;
-
+let playBox;
 let effectControler;
+const timeStep = 1/60;
+const world = new CANNON.World({
+    gravity: new CANNON.Vec3(0,-9.81,0)
+});
 
 // Acciones
 
@@ -53,7 +50,6 @@ function init(){
 
     // Escena
     scene = new THREE.Scene();
-    // scene.background = new THREE.Color(0,0,0.2);
 
     // Camera
     setCameras(window.innerWidth/window.innerHeight);
@@ -72,6 +68,10 @@ function init(){
 
     // seleccionar el target que vamos a mirar
     cameraControls.target.set(0,0,0);
+
+    // set camera position
+    camera.position.set(20,10,0);
+    camera.lookAt(new THREE.Vector3(0,0,0));
 
     // se añade el listener para el evento 
     window.addEventListener('resize',updateAspectRatio);
@@ -99,37 +99,7 @@ function setCameras(ar) {
     scene.add(camera)
     scene.add(miniaturaCamera)
 
-    //Eventos
-    document.addEventListener('keydown', onRobotMoveKeyDown, false);
-    
-
 }
-function onRobotMoveKeyDown(event){
-    console.log("Evento de tecla presionada");
-    console.log(event.key);
-    const step = 1;
-        if (event.key === "ArrowLeft") {
-            // Tecla de flecha izquierda
-            //mover el robot a la izquierda
-            robot.position.x -= step;
-        } else if (event.key === "ArrowUp") {
-            // Tecla de flecha arriba
-            // mover el robot hacia delante
-            robot.position.z -= step;
-        } else if (event.key === "ArrowRight") {
-            // Tecla de flecha derecha
-            // mover el robot a la derecha
-            robot.position.x += step;
-          
-        } else if (event.key === "ArrowDown") {
-            // Tecla de flecha abajo
-           // mover el robot hacia atrás
-              robot.position.z += step;
-        }
-    
-}
-
-
 /**
  * Función que se llama cuando se cambia el tamaño de la ventana
  * 
@@ -158,6 +128,7 @@ function updateAspectRatio(){
     camera.updateProjectionMatrix();
 }
 
+
 function loadScene(){
 
     // Crear una geometría para el suelo
@@ -171,31 +142,27 @@ function loadScene(){
     groundMesh.rotation.x = -Math.PI / 2; // Rotar el suelo para que sea horizontal en el plano XZ
     scene.add(groundMesh);
 
-    // Crear el robot
-    robot = new Robot();
+    //Añadir una luz
+    const luzAmbiente = new THREE.AmbientLight(0xFFFFFF,0.5);
+    luzAmbiente.position.set(0,0,0);
+    scene.add(luzAmbiente);
+
+    // Añadadir objetos a la escena
+    playBox = new PlayBox(world);
+    playBox.addToScene(scene);  
     
-    //se añade el robot a la escena
-    scene.add(robot);
-
-    // Posicionar el robot
-    robot.setPosition(robotX,robotY,robotZ);
-    robot.addToScene(scene);
-
     scene.add(new THREE.AxesHelper(1000));
-
-    // events
+    // Llama a la función para visualizar la escena
     
+    
+
 }
 function setupGUI(){  
     // Definicion de los controles
     effectControler = {
-        giroBase: 0.0,
-        giroBrazo:0.0,
-        giroAntebrazoY: 0.0,
-        giroAntebrazoZ: 0.0,
-        giroPinza: 0.0,
-        separacionPinza: 10.0,
-        solidAlambres: true,
+        rotateHandleLR: 0,
+        rotateHandleUD: 0,
+        initial_balls: 1,
     }
 
     // Creacion interfaz
@@ -203,36 +170,24 @@ function setupGUI(){
 
     // Construccion del menu de widgets
     const menu = gui.addFolder('Control Robot');
-    menu.add(effectControler,'giroBase',-180,180,0.025).name('Giro Base').listen();
-    menu.add(effectControler,'giroBrazo',-45,45,0.025).name('Giro Brazo').listen();
-    menu.add(effectControler,'giroAntebrazoY',-180,180,0.025).name('Giro Antebrazo Y').listen();
-    menu.add(effectControler,'giroAntebrazoZ',-90,90,0.025).name('Giro Antebrazo Z').listen();
-    menu.add(effectControler,'giroPinza',-40,220,0.025).name('Giro Pinza').listen();
-    menu.add(effectControler,'separacionPinza',0,15,0.025).name('Separacion Pinza');
-    menu.add(effectControler,'solidAlambres').name('Solid/Alambres');
-    // añadir  boton para lanzar animacion de robot
-    menu.add({playAnimation: function(){
-        playAnimation();
-    }},'playAnimation').name('Animacion');
+    menu.add(effectControler,'rotateHandleLR',-0.20,0.20,0.005).name('Giro X');
+    menu.add(effectControler,'rotateHandleUD',-0.20,0.20,0.005).name('Giro Z');
 
-}
-function playAnimation(){
-    let animation1 = robot.animationShutDown();
-    animation1.start();
 }
 
 function update(delta){
 
-    // Actualizar el robot          
-    robot.setGiroBase(effectControler.giroBase);
-    robot.setGiroBrazo(effectControler.giroBrazo);
-    robot.setGiroAntebrazoY(effectControler.giroAntebrazoY);
-    robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ);
-    robot.setGiroPinza(effectControler.giroPinza);
-    robot.setSeparacionPinza(effectControler.separacionPinza);
-    robot.setSolidAlambres(effectControler.solidAlambres);
-    
     TWEEN.update(delta);
+
+    // Actualizar el mesa rotatoria
+    playBox.rotateHandleLR(effectControler.rotateHandleLR);
+    playBox.rotateHandleUD(effectControler.rotateHandleUD);
+
+}
+
+function animate(){
+    world.step(timeStep);
+    playBox.animate();
 }
 
 function render(delta){
@@ -240,7 +195,7 @@ function render(delta){
     requestAnimationFrame(render);
     update(delta);
     
-
+    animate();
     // Renderiza la vista miniatura en la esquina superior izquierda
     var miniaturaSize = 1/4*Math.min(window.innerHeight,window.innerWidth); // Tamaño de la vista miniatura
     var padding = 0; // Espacio entre la vista miniatura y los bordes de la ventana
@@ -254,5 +209,3 @@ function render(delta){
     renderer.render(scene,camera);
 
 }
-
-// 
