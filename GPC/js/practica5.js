@@ -28,6 +28,7 @@ let cameraControls;
 let stats;
 
 let robot;
+let groundMesh;
 
 let effectControler;
 
@@ -85,14 +86,16 @@ function init(){
     puntual.position.set(2,7,-4);
     scene.add(puntual);
 
-    const focal = new THREE.SpotLight(0xFFFFFF,0.4);
-    focal.position.set(-99,-10,-10);
+    const focal = new THREE.SpotLight(0xFFFFFF,2);
+    focal.position.set(0,20,10);
     focal.target.position.set(0,0,0);
-    focal.angle = Math.PI;
-    focal.penumbra = 0.3;
+    focal.angle = Math.PI/8;
+    focal.penumbra = 0.2;
     focal.castShadow = true;
+
     scene.add(focal);
-    scene.add(new THREE.CameraHelper(focal.shadow.camera));
+    const spotLightHelper = new THREE.SpotLightHelper(focal);
+    scene.add(spotLightHelper);
 
     // Monitor
     stats = new Stats();
@@ -214,10 +217,10 @@ function loadScene(){
     const groundMaterial = new THREE.MeshLambertMaterial({map: groundTex}); // Color del suelo
 
     // Crear una malla para el suelo
-    const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+    groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
     groundMesh.rotation.x = -Math.PI / 2; // Rotar el suelo para que sea horizontal en el plano XZ
     groundMesh.receiveShadow = true;
-    scene.add(groundMesh);
+   
 
     // Crear el robot
     robot = new Robot(3,true);
@@ -250,7 +253,7 @@ function loadScene(){
     const geoHabitacion = new THREE.BoxGeometry(50,50,25);
     const habitacion = new THREE.Mesh(geoHabitacion,paredes);
     scene.add(habitacion);
-
+    scene.add(groundMesh);
     scene.add(new THREE.AxesHelper(1000));
 
     
