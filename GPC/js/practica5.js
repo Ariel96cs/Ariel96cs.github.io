@@ -232,7 +232,7 @@ function loadScene(){
 
     // Posicionar el robot
     // robot.setPosition(robotX,robotY,robotZ);
-    robot.addToScene(scene);
+    //robot.addToScene(scene);
 
 
     // Habitacion
