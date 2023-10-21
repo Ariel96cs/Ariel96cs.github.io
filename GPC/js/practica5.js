@@ -1,6 +1,6 @@
 /**
- * Brazo robot practica 4
- * Interacción Animación
+ * Brazo robot practica 5
+ * Luces y Materiales
  * 
  * @author ariel96cs@gmail.com
  */
@@ -12,6 +12,7 @@ import {OrbitControls} from "../lib/OrbitControls.module.js"
 import {Robot} from "./robot.js"
 import {GUI} from "../lib/lil-gui.module.min.js"
 import {TWEEN} from "../lib/tween.module.min.js"
+import Stats from "../lib/stats.module.js"
 
 // Variables de consenso
 let renderer, scene, camera;
@@ -27,6 +28,7 @@ let cameraControls;
 let robotX = 0;
 let robotY = 0;
 let robotZ = 0;
+let stats;
 
 let robot;
 
@@ -73,9 +75,40 @@ function init(){
     // seleccionar el target que vamos a mirar
     cameraControls.target.set(0,0,0);
 
+    // Luces
+    const ambiental = new THREE.AmbientLight(0x222222);
+    scene.add(ambiental);
+
+    const direccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
+    direccional.position.set(-1,1,-1);
+    direccional.castShadow = true;
+    scene.add(direccional);
+
+    const puntual = new THREE.PointLight(0xFFFFFF,0.4);
+    puntual.position.set(2,7,-4);
+    scene.add(puntual);
+
+    const focal = new THREE.SpotLight(0xFFFFFF,0.3);
+    focal.position.set(-2,7,4);
+    focal.target.position.set(0,0,0);
+    focal.angle = Math.PI/7;
+    focal.penumbra = 0.3;
+    focal.castShadow = true;
+    scene.add(focal);
+    scene.add(new THREE.CameraHelper(focal.shadow.camera));
+
+    // Monitor
+    stats = new Stats();
+    stats.setMode(0);
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.bottom = '30px';
+    stats.domElement.style.left = '0px';
+
+    document.getElementById('container').appendChild(stats.domElement);
+
     // se añade el listener para el evento 
     window.addEventListener('resize',updateAspectRatio);
-    window.addEventListener('keydown', onRobotMoveKeyDown, false);
+    window.addEventListener('keydown',onRobotMoveKeyDown,false);
 }
 
 function setCameras(ar) {
@@ -99,6 +132,7 @@ function setCameras(ar) {
     //Añadir las cámaras a la escena
     scene.add(camera)
     scene.add(miniaturaCamera)
+    
 
 }
 function onRobotMoveKeyDown(event){
@@ -158,10 +192,16 @@ function updateAspectRatio(){
 function loadScene(){
 
     // Crear una geometría para el suelo
-    const groundGeometry = new THREE.PlaneGeometry(1000, 1000,50,50); // Ancho y largo del suelo
+    const groundGeometry = new THREE.PlaneGeometry(100, 100,5,5); // Ancho y largo del suelo
 
     // Crear un material para el suelo
-    const groundMaterial = new THREE.MeshNormalMaterial({wireframe: false, flatShading: true});// Color del suelo
+    const groundTex = new THREE.TextureLoader().load('./imgs/pisometalico_1024.jpg');
+    groundTex.repeat.set(5,5);
+    groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping;
+    groundTex.magFilter = THREE.LinearFilter;
+    groundTex.minFilter = THREE.LinearFilter;
+
+    const groundMaterial = new THREE.MeshLambertMaterial({map: groundTex}); // Color del suelo
 
     // Crear una malla para el suelo
     const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
@@ -169,7 +209,10 @@ function loadScene(){
     scene.add(groundMesh);
 
     // Crear el robot
-    robot = new Robot();
+    robot = new Robot(3,true);
+    robot.castShadow = true;
+    robot.receiveShadow = true;
+
     
     //se añade el robot a la escena
     scene.add(robot);

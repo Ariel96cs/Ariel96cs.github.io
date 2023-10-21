@@ -11,11 +11,27 @@ import {TWEEN} from "../lib/tween.module.min.js"
 export {Robot};
 
 class Robot extends THREE.Object3D{ 
-    constructor(scale=3){
+    constructor(scale=3,applytextures=false){
         super();
-        // crear el material del robot
-        this.robotMaterial = new THREE.MeshNormalMaterial({wireframe: false, flatShading: true}); //new THREE.MeshBasicMaterial({ color: 0x0000ff,wireframe: false }); // Color del robot
+        // Texturas
+        this.robotMaterial = new THREE.MeshNormalMaterial({wireframe: false, flatShading: true}); 
 
+        const metalTex = new THREE.TextureLoader().load('imgs/metal_128.jpg');
+        const rustyMetalTex = new THREE.TextureLoader().load('imgs/rust_coarse_01_diff_1k.jpg');
+        const rustyMetalTex2 = new THREE.TextureLoader().load('imgs/rusty_metal_sheet_diff_1k.jpg');
+        const entorno = ["./imgs/posx.jpg","./imgs/negx.jpg",
+        "./imgs/posy.jpg","./imgs/negy.jpg",
+        "./imgs/posz.jpg","./imgs/negz.jpg"];
+        const entornoTex = new THREE.CubeTextureLoader().load(entorno);
+
+        this.baseMaterial = new THREE.MeshLambertMaterial({map: rustyMetalTex, color:'gray' });
+        this.antebrazoMaterial = new THREE.MeshLambertMaterial({map: rustyMetalTex2, color:'yellow'});
+        this.pinzasMaterial = new THREE.MeshLambertMaterial({map: metalTex, color:'gray'});
+        this.rotulaMaterial = new THREE.MeshPhongMaterial({envMap: entornoTex, color:'white',
+                                                                                specular:'gray',
+                                                                                shininess: 30,});
+        
+        this.applyTextures = applytextures;
         this.generateRobotGraph();
         this.scaleRobot(scale);
         this.scaleValue = scale;
@@ -85,7 +101,8 @@ class Robot extends THREE.Object3D{
     createBase(){
         // Crear la base cilíndrica del brazo del robot
         const baseGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.15, 32); // Radio superior, radio inferior, altura, número de caras
-        const baseMesh = new THREE.Mesh(baseGeometry, this.robotMaterial);
+        const material = this.applyTextures ? this.baseMaterial : this.robotMaterial;
+        const baseMesh = new THREE.Mesh(baseGeometry, material);
         baseMesh.position.y = 0.1; // Levantar la base 0.1 unidades para que no esté enterrada en el suelo
 
         return baseMesh;
@@ -94,7 +111,8 @@ class Robot extends THREE.Object3D{
     createEje(){
         // Se crea el eje
         const ejeGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.18, 32); // Radio superior, radio inferior, altura, número de caras
-        const ejeMesh = new THREE.Mesh(ejeGeometry, this.robotMaterial);
+        const material = this.applyTextures ? this.baseMaterial : this.robotMaterial;
+        const ejeMesh = new THREE.Mesh(ejeGeometry, material);
         // ejeMesh.position.y = 0.25; // Levantar el eje 0.6 unidades para que esté sobre la base
         // rotar eje 90 grados sobre el eje x para que este en vertical
         ejeMesh.rotateX(Math.PI / 2);
@@ -104,7 +122,8 @@ class Robot extends THREE.Object3D{
     createEsparrago(){
             // Se crea el esparrago
     const esparragoGeometry = new THREE.BoxGeometry(0.18, 1.2, 0.12); // Ancho, alto, profundidad
-    const esparragoMesh = new THREE.Mesh(esparragoGeometry, this.robotMaterial);
+    const material = this.applyTextures ? this.baseMaterial : this.robotMaterial;
+    const esparragoMesh = new THREE.Mesh(esparragoGeometry, material);
     esparragoMesh.position.y = 0.55; // Levantar el espárrago 1.1 unidades para que esté sobre el eje
     return esparragoMesh;
     }
@@ -112,14 +131,16 @@ class Robot extends THREE.Object3D{
     createrotula(){
             // Se crea la rótula
     const rotulaGeometry = new THREE.SphereGeometry(0.2, 32, 32); // Radio, número de caras en ancho y alto    
-    const rotulaMesh = new THREE.Mesh(rotulaGeometry, this.robotMaterial);
+    const material = this.applyTextures ? this.rotulaMaterial : this.robotMaterial;
+    const rotulaMesh = new THREE.Mesh(rotulaGeometry, material);
     rotulaMesh.position.y = 1.15; // Levantar la rótula 1.2 unidades para que esté sobre el espárrago
     return rotulaMesh;
     }
 
     createDisco(){
         const discoGeometry = new THREE.CylinderGeometry(0.22, 0.22, 0.06, 32); // Radio superior, radio inferior, altura, número de caras
-        const discoMesh = new THREE.Mesh(discoGeometry, this.robotMaterial);
+        const material = this.applyTextures ? this.antebrazoMaterial : this.robotMaterial;
+        const discoMesh = new THREE.Mesh(discoGeometry, material);
         // Levantar el disco para que esté centrado sobre la rotula
         // discoMesh.position.y = 1.15;
         return discoMesh;
@@ -133,18 +154,18 @@ class Robot extends THREE.Object3D{
     const nervioHeight = 0.8; // Altura de los prismas
     const nervioWidth = 0.04; // Ancho de los nervios
     
-
     // se instancia la lista de nervios
     const nervios = [];
 
     const nervioGeometry = new THREE.BoxGeometry(nervioWidth, nervioHeight, nervioWidth); // Ancho, alto, profundidad
+    const material = this.applyTextures ? this.antebrazoMaterial : this.robotMaterial;
     // Se añaden los nervios al antebrazo
     for (let i = 0; i < numNervios; i++) {
         const angle = (Math.PI * 2 * i) / numNervios; // Ángulo igual entre los prismas
         const x = Math.cos(angle) * radiusPrisms;
         const z = Math.sin(angle) * radiusPrisms;
 
-        const nervio = new THREE.Mesh(nervioGeometry, this.robotMaterial);
+        const nervio = new THREE.Mesh(nervioGeometry, material);
 
         nervio.position.set(x, nervioHeight/2, z);
         // antebrazo.add(nervio);
@@ -157,10 +178,11 @@ class Robot extends THREE.Object3D{
     createHand(){
     // Se crea la mano, que está formada por dos pinzas sobre un cilindro
     const mano = new THREE.Object3D();
-    const pinzaIzq = this.createPinza(this.robotMaterial);
-    const pinzaDer = this.createPinza(this.robotMaterial);
+    const material = this.applyTextures ? this.pinzasMaterial : this.robotMaterial;
+    const pinzaIzq = this.createPinza(material);
+    const pinzaDer = this.createPinza(material);
     const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
-    const cilindroMesh = new THREE.Mesh(cilindroGeometry, this.robotMaterial);
+    const cilindroMesh = new THREE.Mesh(cilindroGeometry, material); 
 
     cilindroMesh.rotation.x = Math.PI / 2;
     
@@ -190,11 +212,11 @@ class Robot extends THREE.Object3D{
     return mano;
     }
 
-    createPinza(){
+    createPinza(material){
 
-        const pinzasMaterial = this.robotMaterial;
+
         // crear la palma de la pinza
-        const palma = new THREE.Mesh(new THREE.BoxGeometry(0.19,0.2,0.04),pinzasMaterial);
+        const palma = new THREE.Mesh(new THREE.BoxGeometry(0.19,0.2,0.04),material);
         // setting position at the 0,0,0
         // palma.position.y = 0.1; 
     
@@ -228,7 +250,7 @@ class Robot extends THREE.Object3D{
         
         dedo.setIndex(new THREE.BufferAttribute(indices,1));
         dedo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
-        const dedoMesh = new THREE.Mesh(dedo,pinzasMaterial);
+        const dedoMesh = new THREE.Mesh(dedo,material);
     
         // rotar 90 grados sobre el eje y 
         dedoMesh.rotateY(Math.PI/2);
@@ -244,7 +266,7 @@ class Robot extends THREE.Object3D{
         pinza.add(palma);
         pinza.add(dedoMesh);
     
-        pinzasMaterial.side = THREE.DoubleSide;
+        material.side = THREE.DoubleSide;
     
         return pinza;
     }
