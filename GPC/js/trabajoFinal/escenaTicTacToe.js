@@ -114,8 +114,34 @@ function init(){
 
     //capture double click event to place a ball on the board
     renderer.domElement.addEventListener('dblclick',placeBall);
+    window.addEventListener('keydown',onRobotMoveKeyDown,false);
 }
+function onRobotMoveKeyDown(event){
+    console.log("Evento de tecla presionada");
+    console.log(event.key);
+    const step = 1;
+        if (event.key === "ArrowLeft") {
+            // Tecla de flecha izquierda
+            game.board.rotation.z+=step;
 
+        } else if (event.key === "ArrowUp") {
+            // Tecla de flecha arriba
+            game.board.rotation.x+=step;
+            
+        } else if (event.key === "ArrowRight") {
+            // Tecla de flecha derecha
+            game.board.rotation.z-=step;
+          
+        } else if (event.key === "ArrowDown") {
+            // Tecla de flecha abajo
+           
+            game.board.rotation.x-=step;
+        }
+        effectControler.angleX = game.board.rotation.x;
+        effectControler.angleZ = game.board.rotation.z;
+        game.physicBoard.quaternion.copy(game.board.quaternion);
+    
+}
 function placeBall(event){
     console.log("double click");
 
