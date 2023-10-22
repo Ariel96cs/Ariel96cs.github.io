@@ -29,7 +29,7 @@ const timeStep = 1/60;
 
 // Additional cameras
 let miniCamera;
-const L = 4;
+const L = 10;
 
 // Game variables
 let game;
@@ -77,8 +77,8 @@ function init(){
     cameraControls.target.set(0,0,0);
 
     // Luces
-    const ambiental = new THREE.AmbientLight(0x222222);
-    scene.add(ambiental);
+    // const ambiental = new THREE.AmbientLight(0x222222);
+    // scene.add(ambiental);
 
     // const direccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
     // direccional.position.set(-1,5,-1);
@@ -89,8 +89,8 @@ function init(){
     // puntual.position.set(2,7,-4);
     // scene.add(puntual);
 
-    const focal = new THREE.SpotLight(0xFFFFFF,0.5);
-    focal.position.set(0,20,10);
+    const focal = new THREE.SpotLight(0xFFFFFF,0.9);
+    focal.position.set(0,10,10);
     focal.target.position.set(0,0,0);
     focal.angle = Math.PI/8;
     focal.penumbra = 0.2;

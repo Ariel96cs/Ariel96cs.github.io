@@ -119,16 +119,25 @@ class TicTacToe {
     }
 
     createPlayer1Obj(){
-        
-        const obj = new THREE.Mesh(this.playerGeometry,new THREE.MeshLambertMaterial({map:this.player1ObjTex,color:this.color1}));
+        const entorno = ["./imgs/posx.jpg","./imgs/negx.jpg",
+        "./imgs/posy.jpg","./imgs/negy.jpg",
+        "./imgs/posz.jpg","./imgs/negz.jpg"];
+        const entornoTex = new THREE.CubeTextureLoader().load(entorno);
+        const material = new THREE.MeshPhongMaterial({envMap: entornoTex, color: this.color1,
+                                                        specular:'gray',
+                                                        shininess: 30});
+        const obj = new THREE.Mesh(this.playerGeometry,material);
         obj.name = "player1";
+        obj.castShadow = true;
+        obj.receiveShadow = true;
         return obj;
     }
 
     createPlayer2Obj(){
         
         const obj = new THREE.Mesh(this.playerGeometry,new THREE.MeshLambertMaterial({map:this.player2ObjTex,color:this.color2}));
-        
+        obj.castShadow = true;
+        obj.receiveShadow = true;
         obj.name = "player2";
         return obj;
     }
@@ -283,8 +292,6 @@ class TicTacToeBoard extends THREE.Object3D {
         this.createBoard();
         this.name = "TicTacToeBoard";
         
-        // rotar el tablero para que quede plano
-        // this.rotation.x = -Math.PI/2;
        
     }
 
@@ -308,6 +315,7 @@ class TicTacToeBoard extends THREE.Object3D {
 
     createCell(material){
         const cell = new THREE.Mesh(new THREE.BoxGeometry(5,0.2,5),material);
+        cell.receiveShadow = true;
         return cell;
     }
     
