@@ -123,9 +123,11 @@ class TicTacToe {
         "./imgs/posy.jpg","./imgs/negy.jpg",
         "./imgs/posz.jpg","./imgs/negz.jpg"];
         const entornoTex = new THREE.CubeTextureLoader().load(entorno);
-        const material = new THREE.MeshPhongMaterial({envMap: entornoTex, color: this.color1,
+        const material = new THREE.MeshPhongMaterial({envMap: entornoTex, 
+                                                        color: this.color1,
                                                         specular:'gray',
-                                                        shininess: 30});
+                                                        shininess: 30,
+                                                        });
         const obj = new THREE.Mesh(this.playerGeometry,material);
         obj.name = "player1";
         obj.castShadow = true;

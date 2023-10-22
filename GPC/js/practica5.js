@@ -50,6 +50,8 @@ function init(){
     document.getElementById("container").appendChild(renderer.domElement);
     renderer.setClearColor(new THREE.Color(1,1,1));
     renderer.autoClear = false
+    renderer.antialias = true;
+    renderer.shadowMap.enabled = true;
 
     // Escena
     scene = new THREE.Scene();
@@ -86,7 +88,7 @@ function init(){
     puntual.position.set(2,7,-4);
     scene.add(puntual);
 
-    const focal = new THREE.SpotLight(0xFFFFFF,2);
+    const focal = new THREE.SpotLight(0xFFFFFF,0.4);
     focal.position.set(0,20,10);
     focal.target.position.set(0,0,0);
     focal.angle = Math.PI/8;

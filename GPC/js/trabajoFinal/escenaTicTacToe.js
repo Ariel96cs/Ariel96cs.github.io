@@ -51,6 +51,8 @@ function init(){
     document.getElementById("container").appendChild(renderer.domElement);
     renderer.setClearColor(new THREE.Color(1,1,1));
     renderer.autoClear = false
+    renderer.antialias = true;
+    renderer.shadowMap.enabled = true;
 
     world = new CANNON.World({
         gravity: new CANNON.Vec3(0,-9.81,0)
@@ -77,13 +79,24 @@ function init(){
     cameraControls.target.set(0,0,0);
 
     // Luces
-    // const ambiental = new THREE.AmbientLight(0x222222);
-    // scene.add(ambiental);
+    const ambiental = new THREE.AmbientLight(0x404040);
+    scene.add(ambiental);
 
     // const direccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
     // direccional.position.set(-1,5,-1);
     // direccional.castShadow = true;
     // scene.add(direccional);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); // Luz direccional
+    directionalLight.position.set(0, 10, 0); // Ajusta la posición de la luz
+    directionalLight.castShadow = true; // Habilita que la luz proyecte sombras
+    scene.add(directionalLight);
+
+    // Ajusta la configuración de las sombras
+    directionalLight.shadow.mapSize.width = 1024;
+    directionalLight.shadow.mapSize.height = 1024;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 50;
 
     // const puntual = new THREE.PointLight(0xFFFFFF,0.4);
     // puntual.position.set(2,7,-4);
@@ -312,7 +325,7 @@ function render(delta){
      // Tamaño de la vista miniatura
     var miniSIze = 1/4*Math.min(window.innerHeight,window.innerWidth);
     // Espacio entre la vista miniatura y los bordes de la ventana
-    var padding = 0; 
+    var padding = 50; 
 
     renderer.setViewport(padding, window.innerHeight - miniSIze - padding, miniSIze, miniSIze);
     renderer.setScissor(padding, window.innerHeight - miniSIze - padding, miniSIze, miniSIze);
