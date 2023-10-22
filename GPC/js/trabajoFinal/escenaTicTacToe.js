@@ -21,9 +21,11 @@ import * as CANNON from "../../lib/cannon-es.module.js"
 let renderer, scene, camera;
 let cameraControls;
 let stats;
+let effectControler;
 
 // Extra variables
 let world;
+const timeStep = 1/60;
 
 // Additional cameras
 let miniCamera;
@@ -31,12 +33,8 @@ const L = 4;
 
 // Game variables
 let game;
-let player1Obj, player2Obj;
-let player1Turn = true;
-let gameStarted = false;
-let gameEnded = false;
-let gameWinner = null;
-
+let score1 = 0;
+let score2 = 0;
 
 // Actions
 
@@ -113,6 +111,38 @@ function init(){
 
     // se añade el listener para el evento 
     window.addEventListener('resize',updateAspectRatio);
+
+    //capture double click event to place a ball on the board
+    renderer.domElement.addEventListener('dblclick',placeBall);
+}
+
+function placeBall(event){
+    console.log("double click");
+
+    // capture the click position
+    let x = event.clientX;
+    let y = event.clientY;
+
+    x = (x/window.innerWidth)*2-1;
+    y = -(y/window.innerHeight)*2+1;
+
+    // Construir el rayo
+    const rayo = new THREE.Raycaster();
+    rayo.setFromCamera(new THREE.Vector2(x,y),camera);
+
+    // Iterar sobre las celdas del board y verificar si existen intersectos
+    game.board.children.forEach(cell => {
+        console.log("Checking cell:",cell.name);
+        const intersections = rayo.intersectObject(cell,false);
+        if (intersections.length > 0){
+            // obtener las coordenadas de la celda i,j
+            const i = cell.userData.i;
+            const j = cell.userData.j;
+
+            game.play(i,j);
+        }
+    });
+
 }
 
 
@@ -124,7 +154,7 @@ function setCameras(ar) {
     camaraOrtografica.lookAt(new THREE.Vector3(0, 0, 0));
 
     miniCamera = camaraOrtografica.clone()
-    miniCamera.position.set(0, 10, 0);
+    miniCamera.position.set(0, 15, 0);
     miniCamera.up = new THREE.Vector3(0, 0, -1)
     miniCamera.lookAt(new THREE.Vector3(0, 0, 0))
 
@@ -166,7 +196,7 @@ function updateAspectRatio(){
     
 
 function loadScene(){
-    game = new TicTacToe(world);
+    game = new TicTacToe(world,scene);
     scene.add(game.board);
 
     // Habitacion
@@ -189,14 +219,67 @@ function loadScene(){
     scene.add(habitacion);
     scene.add(new THREE.AxesHelper(1000));
 }
-function setupGUI(){}
+function setupGUI(){
+    effectControler = {
+        mensaje: 'TIC TAC TOE',
+        score1:0,
+        score2:0,
+        player1Color: 'rgb(150,150,150)',
+        player2Color: 'rgb(150,0,150)',
+        angleX: 0,
+        angleZ: 0
+    }
+
+    // Creacion interfaz
+    const gui = new GUI();
+
+    // Construccion del menu de widgets
+    const menu = gui.addFolder('Controles');
+    menu.add(effectControler,'mensaje').name('Mensaje');
+    menu.addColor(effectControler,'player1Color').name('Color Player1');
+    menu.addColor(effectControler,'player2Color').name('Color Player2');
+    menu.add(effectControler,'score1').name('Score Player1').listen();
+    menu.add(effectControler,'score2').name('Score Player2').listen();
+    menu.add(effectControler,'angleX',-45,45,1).name('Angulo X').listen();
+    menu.add(effectControler,'angleZ',-45,45,1).name('Angulo Z').listen();
+    
+    menu.add({resetGame: function(){
+        resetGame();
+    }},'resetGame').name('Reset Game');
+
+}
+function resetGame(){
+    game.resetGame();
+    
+}
+
 function update(delta){
+    game.color1 = new THREE.Color(effectControler.player1Color);
+    game.color2 = new THREE.Color(effectControler.player2Color);
+    
+    effectControler.score1 = game.score1;
+    effectControler.score2 = game.score2;
+
+    game.rotateBoard(effectControler.angleX,effectControler.angleZ);
 
     TWEEN.update(delta);
 }
 
+function animate(delta){
+    game.jumpWinnerBalls();
+    // Step the Cannon.js physics world
+    const fixedTimeStep = 1.0 / 60.0; // 60 FPS
+    const maxSubSteps = 3; // Maximum number of sub-steps to use
+    world.step(fixedTimeStep, delta, maxSubSteps);
+    
+    // Update the positions and rotations of objects based on physics bodies
+    game.updateObjectPositions();
+
+}
+
 function render(delta){
     renderer.clear();
+    animate(delta);
     requestAnimationFrame(render);
     update(delta);
 
