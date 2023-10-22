@@ -159,7 +159,7 @@ class TicTacToe {
 
     createPhysicPlayer(){
         const bouncingMaterial = new CANNON.Material("bouncingMaterial");
-        bouncingMaterial.restitution = 0.5; 
+        bouncingMaterial.restitution = 5; 
 
         const physicPlayer = new CANNON.Body({
             mass: 0.1,
@@ -268,8 +268,8 @@ class TicTacToe {
                 
                 // Wait for 2 seconds (adjust the time as needed) and then apply a downward force
                 setTimeout(() => {
-                    const gravityForce = new CANNON.Vec3(0, -10, 0); // Apply a downward force to drop the ball
-                    physicBall.applyLocalForce(gravityForce, new CANNON.Vec3(0, 0, 0));
+                    const reverseForce = new CANNON.Vec3(0, -force.y, 0); // Fuerza en sentido opuesto
+                    physicBall.applyLocalForce(reverseForce, new CANNON.Vec3(0, 0, 0));
                 }, 2000); // 2000 milliseconds (2 seconds)
                 }
             }
