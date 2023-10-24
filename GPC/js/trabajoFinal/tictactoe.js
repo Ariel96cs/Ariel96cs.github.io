@@ -119,9 +119,9 @@ class TicTacToe {
     }
 
     createPlayer1Obj(){
-        const entorno = ["./imgs/posx.jpg","./imgs/negx.jpg",
-        "./imgs/posy.jpg","./imgs/negy.jpg",
-        "./imgs/posz.jpg","./imgs/negz.jpg"];
+        const entorno = ["./imgs/Yokohama2/posx.jpg","./imgs/Yokohama2/negx.jpg",
+        "./imgs/Yokohama2/posy.jpg","./imgs/Yokohama2/negy.jpg",
+        "./imgs/Yokohama2/posz.jpg","./imgs/Yokohama2/negz.jpg"];
         const entornoTex = new THREE.CubeTextureLoader().load(entorno);
         const material = new THREE.MeshPhongMaterial({envMap: entornoTex, 
                                                         color: this.color1,
@@ -221,6 +221,7 @@ class TicTacToe {
         this.occupiedCells[i][j] = playerId;
         this.balls.push(obj);
         this.physicBalls.push(physicPlayer);
+        cell.color = this.color1;
 
         obj.userData = {playerId:playerId};
         this.player1Turn = !this.player1Turn;

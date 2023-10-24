@@ -237,27 +237,89 @@ function updateAspectRatio(){
 function loadScene(){
     game = new TicTacToe(world,scene);
     scene.add(game.board);
-
+    const room = makeRoom();
+    scene.add(room);
+    scene.add(new THREE.AxesHelper(1000));
+}
+function makeRoom(){
     // Habitacion
     const walls = [];
     walls.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
-                                            map:new THREE.TextureLoader().load("./imgs/posx.jpg")}));
+                                            map:new THREE.TextureLoader().load("./imgs/Yokohama2/posx.jpg")}));
     walls.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
-                                            map:new THREE.TextureLoader().load("./imgs/negx.jpg")}));
+                                            map:new THREE.TextureLoader().load("./imgs/Yokohama2/negx.jpg")}));
     walls.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
-                                            map:new THREE.TextureLoader().load("./imgs/posy.jpg")}));
+                                            map:new THREE.TextureLoader().load("./imgs/Yokohama2/posy.jpg")}));
     walls.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
-                                            map:new THREE.TextureLoader().load("./imgs/negy.jpg")}));
+                                            map:new THREE.TextureLoader().load("./imgs/Yokohama2/negy.jpg")}));
     walls.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
-                                            map:new THREE.TextureLoader().load("./imgs/posz.jpg")}));
+                                            map:new THREE.TextureLoader().load("./imgs/Yokohama2/posz.jpg")}));
     walls.push(new THREE.MeshBasicMaterial({side:THREE.BackSide,
-                                            map:new THREE.TextureLoader().load("./imgs/negz.jpg")}));
+                                            map:new THREE.TextureLoader().load("./imgs/Yokohama2/negz.jpg")}));
+    
+    const width = game.board.boardWidth*game.board.cols;
+    const height = game.board.boardHeight*game.board.rows;                       
+    const geoRoom = new THREE.BoxGeometry(width,width,height);
+    const room = new THREE.Mesh(geoRoom,walls);
+    room.position.set(0,height/3,0);
 
-    const geoHabitacion = new THREE.BoxGeometry(50,50,25);
-    const habitacion = new THREE.Mesh(geoHabitacion,walls);
-    scene.add(habitacion);
-    scene.add(new THREE.AxesHelper(1000));
+    // añadir fisica
+    const wallsShape = new CANNON.Vec3(50,0.1,50);
+    const wallDistance = 22.5;
+    const groundMaterial = new CANNON.Material("groundMaterial");
+    groundMaterial.restitution = 0.0001;
+    // create the physic floor  
+    const physicFloor = new CANNON.Body({
+        mass: 0,
+        shape: new CANNON.Box(wallsShape),
+        position: new CANNON.Vec3(0,-7.5,0),
+        material: groundMaterial
+    });
+    //physicWall1.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+    world.addBody(physicFloor);
+   
+    const physicWall1 = new CANNON.Body({
+        mass: 0,
+        shape: new CANNON.Box(wallsShape),
+        position: new CANNON.Vec3(0,0,-wallDistance),
+        material: groundMaterial
+    });
+    physicWall1.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+    world.addBody(physicWall1); 
+    
+    const physicWall2 = new CANNON.Body({
+        mass: 0,
+        shape: new CANNON.Box(wallsShape),
+        position: new CANNON.Vec3(0,0,wallDistance),
+        material: groundMaterial
+    });
+    physicWall2.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+    world.addBody(physicWall2);
+
+    const physicWall3 = new CANNON.Body({
+        mass: 0,
+        shape: new CANNON.Box(wallsShape),
+        position: new CANNON.Vec3(wallDistance,0,0),
+        material: groundMaterial
+    });
+    physicWall3.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
+    world.addBody(physicWall3);
+
+    const physicWall4 = new CANNON.Body({
+        mass: 0,
+        shape: new CANNON.Box(wallsShape),
+        position: new CANNON.Vec3(-wallDistance,0,0),
+        material: groundMaterial
+    });
+    physicWall4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
+    
+    world.addBody(physicWall4);
+    
+
+
+    return room
 }
+
 function setupGUI(){
     effectControler = {
         mensaje: 'TIC TAC TOE',
@@ -299,8 +361,9 @@ function update(delta){
     effectControler.score1 = game.score1;
     effectControler.score2 = game.score2;
 
-    game.rotateBoard(effectControler.angleX,effectControler.angleZ);
-
+    // if (game.gameOver){
+        game.rotateBoard(effectControler.angleX,effectControler.angleZ);
+    // }
     TWEEN.update(delta);
 }
 
