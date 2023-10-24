@@ -26,7 +26,7 @@ let effectControler;
 // Extra variables
 let world;
 const timeStep = 1/60;
-
+const maxSubSteps = 3; 
 // Additional cameras
 let miniCamera;
 const L = 10;
@@ -35,6 +35,10 @@ const L = 10;
 let game;
 let score1 = 0;
 let score2 = 0;
+
+const initialX = 0;
+const initialY = -3.5;
+const initialZ = 0;
 
 // Actions
 
@@ -132,7 +136,7 @@ function init(){
 function onRobotMoveKeyDown(event){
     console.log("Evento de tecla presionada");
     console.log(event.key);
-    const step = 1;
+    const step = 3;
         if (event.key === "ArrowLeft") {
             // Tecla de flecha izquierda
             game.board.rotation.z+=step;
@@ -152,7 +156,7 @@ function onRobotMoveKeyDown(event){
         }
         effectControler.angleX = game.board.rotation.x;
         effectControler.angleZ = game.board.rotation.z;
-        game.physicBoard.quaternion.copy(game.board.quaternion);
+        game.board.physicBoard.quaternion.copy(game.board.quaternion);
     
 }
 function placeBall(event){
@@ -236,11 +240,85 @@ function updateAspectRatio(){
 
 function loadScene(){
     game = new TicTacToe(world,scene);
+    game.board.addPhysics(world);
+    game.board.updateBoardPosition(initialX,initialY,initialZ);
     scene.add(game.board);
+
     const room = makeRoom();
     scene.add(room);
+    addGLTFBox();
+
     scene.add(new THREE.AxesHelper(1000));
+
 }
+
+function addGLTFBox(){
+    // importar modelo en gltf
+    const gltfLoader = new GLTFLoader();
+        gltfLoader.load('./models/wooden_box/scene.gltf',function (gltf){
+        gltf.scene.position.y = -7.5;
+        gltf.scene.rotation.y = -Math.PI/2;
+        gltf.scene.scale.set(0.5,0.5,0.5);
+        gltf.scene.name = 'box';
+        scene.add(gltf.scene);
+
+        //añadirle paredes físicas a la caja
+        const wallsShape1 = new CANNON.Vec3(5,0.25,3.7);
+        const wallsShape2 = new CANNON.Vec3(3.7,0.25,5);
+        const wallDistance = 5.5;
+        const y = -7.5;
+        const groundMaterial = new CANNON.Material("groundMaterial");
+        groundMaterial.restitution = 0.3;
+        // create the physic floor  
+        // const physicFloor = new CANNON.Body({
+        //     mass: 0,
+        //     shape: new CANNON.Box(wallsShape),
+        //     position: new CANNON.Vec3(0,y,0),
+        //     material: groundMaterial
+        // });
+        // world.addBody(physicFloor);
+
+        const physicWall1 = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(wallsShape1),
+            position: new CANNON.Vec3(0,y,-wallDistance),
+            material: groundMaterial
+        });
+        physicWall1.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+        world.addBody(physicWall1); 
+        
+        const physicWall2 = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(wallsShape1),
+            position: new CANNON.Vec3(0,y,wallDistance),
+            material: groundMaterial
+        });
+        physicWall2.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+        world.addBody(physicWall2);
+    
+        const physicWall3 = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(wallsShape2),
+            position: new CANNON.Vec3(wallDistance,y,0),
+            material: groundMaterial
+        });
+        physicWall3.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
+        world.addBody(physicWall3);
+    
+        const physicWall4 = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(wallsShape2),
+            position: new CANNON.Vec3(-wallDistance,y,0),
+            material: groundMaterial
+        });
+        physicWall4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
+        
+        world.addBody(physicWall4);
+    });
+
+
+}
+
 function makeRoom(){
     // Habitacion
     const walls = [];
@@ -336,7 +414,7 @@ function setupGUI(){
 
     // Construccion del menu de widgets
     const menu = gui.addFolder('Controles');
-    menu.add(effectControler,'mensaje').name('Mensaje');
+    menu.add(effectControler,'mensaje').name('Game');
     menu.addColor(effectControler,'player1Color').name('Color Player1');
     menu.addColor(effectControler,'player2Color').name('Color Player2');
     menu.add(effectControler,'score1').name('Score Player1').listen();
@@ -351,7 +429,10 @@ function setupGUI(){
 }
 function resetGame(){
     game.resetGame();
-    
+
+    // game.board.updateBoardPosition(initialX,initialY,initialZ);
+    game.board.animate();
+
 }
 
 function update(delta){
@@ -362,7 +443,7 @@ function update(delta){
     effectControler.score2 = game.score2;
 
     // if (game.gameOver){
-        game.rotateBoard(effectControler.angleX,effectControler.angleZ);
+        // game.board.rotateBoard(effectControler.angleX,effectControler.angleZ);
     // }
     TWEEN.update(delta);
 }
@@ -370,9 +451,8 @@ function update(delta){
 function animate(delta){
     game.jumpWinnerBalls();
     // Step the Cannon.js physics world
-    const fixedTimeStep = 1.0 / 60.0; // 60 FPS
-    const maxSubSteps = 3; // Maximum number of sub-steps to use
-    world.step(fixedTimeStep, delta, maxSubSteps);
+    // Maximum number of sub-steps to use
+    world.step(timeStep, delta, maxSubSteps);
     
     // Update the positions and rotations of objects based on physics bodies
     game.updateObjectPositions();
@@ -397,4 +477,7 @@ function render(delta){
 
     renderer.setViewport(0,0,window.innerWidth,window.innerHeight);
     renderer.render(scene,camera);
+    stats.update();
+
+    // console.log("render");
 }

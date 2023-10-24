@@ -1,0 +1,11 @@
+Model Information:
+* title:	Wooden box
+* source:	https://sketchfab.com/3d-models/wooden-box-26bd77c0972144e9b1fa47dfc0bff334
+* author:	Shedmon (https://sketchfab.com/shedmon)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Wooden box" (https://sketchfab.com/3d-models/wooden-box-26bd77c0972144e9b1fa47dfc0bff334) by Shedmon (https://sketchfab.com/shedmon) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

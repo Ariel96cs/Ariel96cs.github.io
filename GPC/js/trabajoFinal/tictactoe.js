@@ -7,6 +7,7 @@
 // imports
 import * as THREE from "../../lib/three.module.js"
 import * as CANNON from "../../lib/cannon-es.module.js"
+import {TWEEN} from "../../lib/tween.module.min.js"
 
 export {TicTacToe};
 
@@ -26,8 +27,7 @@ class TicTacToe {
         }
         this.player1ObjTex = new THREE.TextureLoader().load('imgs/wood512.jpg');
         this.player2ObjTex = new THREE.TextureLoader().load('imgs/chess.png');
-        this.createPhysicBoard();
-        this.board.position.copy(this.physicBoard.position);
+        
         this.balls = [];
         this.physicBalls = [];
         this.color1 = 'blue';
@@ -43,13 +43,7 @@ class TicTacToe {
         this.score2 = 0;
         
     }
-    rotateBoard(angleX,angleZ){
 
-        this.board.rotation.x = angleX * Math.PI/180;
-        this.board.rotation.z = angleZ * Math.PI/180;
-
-        this.physicBoard.quaternion.copy(this.board.quaternion);
-    }
 
     checkGameOver(){
         // check rows
@@ -144,24 +138,11 @@ class TicTacToe {
         return obj;
     }
 
-    createPhysicBoard(){
-        const groundMaterial = new CANNON.Material("groundMaterial");
-        groundMaterial.restitution = 0.1;
-        // create the physic board  
-        this.physicBoard = new CANNON.Body({
-            mass: 0,
-
-            shape: new CANNON.Box(new CANNON.Vec3(this.board.boardWidth/2,0.1,this.board.boardHeight/2)),
-            position: new CANNON.Vec3(0,0,0),
-            material: groundMaterial
-        });
-        // this.physicBoard.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
-        this.world.addBody(this.physicBoard);
-    }
+    
 
     createPhysicPlayer(){
         const bouncingMaterial = new CANNON.Material("bouncingMaterial");
-        bouncingMaterial.restitution = 5; 
+        bouncingMaterial.restitution = 1; 
 
         const physicPlayer = new CANNON.Body({
             mass: 0.1,
@@ -202,10 +183,10 @@ class TicTacToe {
         console.log("adding player "+playerId+" over cell "+i+","+j);
 
         // check that the cell is not occupied
-        if(this.occupiedCells[i][j] != -1){
-            console.log("cell "+i+","+j+" is occupied");
-            return;
-        }
+        // if(this.occupiedCells[i][j] != -1){
+        //     console.log("cell "+i+","+j+" is occupied");
+        //     return;
+        // }
         
         const physicPlayer = this.createPhysicPlayer();
         
@@ -230,14 +211,14 @@ class TicTacToe {
     }
     // resetGame
     resetGame(){
-        // remove the balls from the scene
-        this.balls.forEach(ball => {
-            this.scene.remove(ball);
-        });
-        // remove the physic balls from the world
-        this.physicBalls.forEach(ball => {
-            this.world.removeBody(ball);
-        });
+        // // remove the balls from the scene
+        // this.balls.forEach(ball => {
+        //     this.scene.remove(ball);
+        // });
+        // // remove the physic balls from the world
+        // this.physicBalls.forEach(ball => {
+        //     this.world.removeBody(ball);
+        // });
         // reset the occupied cells matrix
         for(let i=0;i<3;i++){
             for(let j=0;j<3;j++){
@@ -248,26 +229,30 @@ class TicTacToe {
         this.gameOver = false;
         this.player1Turn = true;
         this.winner = -1;
-        this.balls = [];
-        this.physicBalls = [];
+        // this.balls = [];
+        // this.physicBalls = [];
         this.newGame = true;
 
-        this.board.rotation.set(0,0,0);
-        this.physicBoard.quaternion.copy(this.board.quaternion);
+        // this.board.updateBoardPosition(0,0,0);
+
     }
 
     // Animations
     jumpWinnerBalls() {
         if (this.gameOver) {
         const force = new CANNON.Vec3(0, 3, 0); // Apply an upward force
-    
+        
         for (let index = 0; index < this.physicBalls.length; index++) {
             const physicBall = this.physicBalls[index];
             const viewBall = this.balls[index];
     
             if (viewBall.userData.playerId == this.winner) {
                 // Apply an upward force to the winner balls
-                physicBall.applyLocalForce(force, new CANNON.Vec3(0, 0, 0));
+
+                setTimeout(() => {
+                    physicBall.applyLocalForce(force, new CANNON.Vec3(0, 0, 0));
+                }, 1000);
+                
                 
                 // Wait for 2 seconds (adjust the time as needed) and then apply a downward force
                 setTimeout(() => {
@@ -276,6 +261,7 @@ class TicTacToe {
                 }, 2000); // 2000 milliseconds (2 seconds)
                 }
             }
+            
         }
     }
   
@@ -294,7 +280,7 @@ class TicTacToeBoard extends THREE.Object3D {
         this.padding = padding;
         this.createBoard();
         this.name = "TicTacToeBoard";
-        
+        this.updateBoardPosition(0,0,0);
        
     }
 
@@ -313,7 +299,25 @@ class TicTacToeBoard extends THREE.Object3D {
                 console.log("cell "+i+","+j+" created");
             }
         }
+        this.createPhysicBoard();
 
+    }
+    addPhysics(world){  
+        world.addBody(this.physicBoard);
+    }
+
+    createPhysicBoard(){
+        const groundMaterial = new CANNON.Material("groundMaterial");
+        groundMaterial.restitution = 0.1;
+        // create the physic board  
+        this.physicBoard = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(new CANNON.Vec3(this.boardWidth/2,0.1,this.boardHeight/2)),
+            position: new CANNON.Vec3(0,0,0),
+            material: groundMaterial
+        });
+
+        return this.physicBoard;
     }
 
     createCell(material){
@@ -321,5 +325,55 @@ class TicTacToeBoard extends THREE.Object3D {
         cell.receiveShadow = true;
         return cell;
     }
+
+    rotateBoard(angleX,angleZ){
+
+        this.rotation.x = angleX * Math.PI/180;
+        this.rotation.z = angleZ * Math.PI/180;
+
+        this.physicBoard.quaternion.copy(this.quaternion);
+    }
+
+    updateBoardPosition(x,y,z){
+        this.physicBoard.position.set(x,y,z);
+        this.position.copy(this.physicBoard.position);
+        this.quaternion.copy(this.physicBoard.quaternion);
+    }
+
+    animate(){
+        const coords = {boardPosX:this.position.x,boardPosY:this.position.y,
+            boardPosZ:this.position.z,  
+            angleX:this.rotation.x,
+            angleZ:this.rotation.z};
+        const board = this
+        const anim1 = new TWEEN.Tween(coords)
+            .to({boardPosX:[0,0,0],boardPosY:[3,4,5],boardPosZ:[0,-3,-13],angleX:[0,0,-3,20,30]},3000)
+            .interpolation(TWEEN.Interpolation.CatmullRom)
+            .easing(TWEEN.Easing.Cubic.Out)
+            .onUpdate(function(){
+                board.rotateBoard(coords.angleX,coords.angleZ);
+                board.updateBoardPosition(coords.boardPosX,coords.boardPosY,coords.boardPosZ);
+                
+            });
+            const anim2 = new TWEEN.Tween(coords)
+            .to({boardPosX:[0,0,0],boardPosY:[4,3,-3.5],boardPosZ:[-13,-3,0],angleX:[20,10,0]},3000)
+            .interpolation(TWEEN.Interpolation.CatmullRom)
+            .easing(TWEEN.Easing.Circular.In)
+            .onUpdate(function(){
+                board.rotateBoard(coords.angleX,coords.angleZ);
+                board.updateBoardPosition(coords.boardPosX,coords.boardPosY,coords.boardPosZ);
+                
+            });
+            anim1.onComplete(function(){
+                setTimeout(function(){
+                    console.log("animacion 1 completada");
+                    anim2.start();
+                },1000);
+            })
+            .start();
+        
+
+   }
+
     
 }
