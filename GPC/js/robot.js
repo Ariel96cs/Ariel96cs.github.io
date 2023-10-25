@@ -327,8 +327,8 @@ class Robot extends THREE.Object3D{
         const pIni = 0.02;
         const pFin = 0.2;
        
-        this.pinzaIzq.position.z = -pIni - pFin/15 * sep;
-        this.pinzaDer.position.z = pIni+pFin/15 * sep;
+        this.pinzaIzq.position.z = -(0.0093*sep+pIni);
+        this.pinzaDer.position.z = 0.0093*sep+pIni;
         
     }
 
@@ -336,15 +336,6 @@ class Robot extends THREE.Object3D{
         this.robotMaterial.wireframe = !solid;
     }
 
-    // effectControler = {
-    //     giroBase: 0.0,
-    //     giroBrazo:0.0,
-    //     giroAntebrazoY: 0.0,
-    //     giroAntebrazoZ: 0.0,
-    //     giroPinza: 0.0,
-    //     separacionPinza: 10.0,
-    //     solidAlambres: true,
-    // }
     animationMoveObject(effectControler){
         const sep = {sepValue:effectControler.separacionPinza};
         const robot = this;
