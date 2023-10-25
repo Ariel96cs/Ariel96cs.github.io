@@ -141,8 +141,8 @@ function loadScene(){
     pinzaIzq.position.y = 2.2;
     pinzaDer.position.y = 2.2;
     // Separar las pinzas
-    pinzaIzq.position.z = 0.1;
-    pinzaDer.position.z = -0.1;
+    pinzaIzq.position.z = -0.1;
+    pinzaDer.position.z = 0.1;
 
     // trasladar las pinzas hacia adelante
     pinzaIzq.position.x = 0.1;
