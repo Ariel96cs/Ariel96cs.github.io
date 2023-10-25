@@ -214,20 +214,20 @@ function setupGUI(){
 
 }
 function playAnimation(){
-    let animation1 = robot.animationShutDown();
+    let animation1 = robot.animationMoveObject();
     animation1.start();
 }
 
 function update(delta){
 
     // Actualizar el robot          
-    robot.setGiroBase(effectControler.giroBase);
-    robot.setGiroBrazo(effectControler.giroBrazo);
-    robot.setGiroAntebrazoY(effectControler.giroAntebrazoY);
-    robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ);
-    robot.setGiroPinza(effectControler.giroPinza);
-    robot.setSeparacionPinza(effectControler.separacionPinza);
-    robot.setSolidAlambres(effectControler.solidAlambres);
+    // robot.setGiroBase(effectControler.giroBase);
+    // robot.setGiroBrazo(effectControler.giroBrazo);
+    // robot.setGiroAntebrazoY(effectControler.giroAntebrazoY);
+    // robot.setGiroAntebrazoZ(effectControler.giroAntebrazoZ);
+    // robot.setGiroPinza(effectControler.giroPinza);
+    // robot.setSeparacionPinza(effectControler.separacionPinza);
+    // robot.setSolidAlambres(effectControler.solidAlambres);
     
     TWEEN.update(delta);
 }

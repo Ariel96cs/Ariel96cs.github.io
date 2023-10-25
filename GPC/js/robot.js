@@ -80,16 +80,10 @@ class Robot extends THREE.Object3D{
         const base = this.createBase();
         this.base = base;
         // // Se crea el robot, que está formado por la base y el brazo
-        // const robot = new THREE.Object3D();
-        // // Se añade la base al robot
-        // robot.add(base);
-        // // Se añade el brazo al robot
-        // robot.add(brazo);
+
         this.brazo.position.y = 0;
         base.add(brazo)
         this.add(base);
-        // this.add(brazo);
-
         return this;
     }
 
@@ -116,8 +110,6 @@ class Robot extends THREE.Object3D{
         const ejeGeometry = new THREE.CylinderGeometry(0.2, 0.2, 0.18, 32); // Radio superior, radio inferior, altura, número de caras
         const material = this.applyTextures ? this.baseMaterial : this.robotMaterial;
         const ejeMesh = new THREE.Mesh(ejeGeometry, material);
-        // ejeMesh.position.y = 0.25; // Levantar el eje 0.6 unidades para que esté sobre la base
-        // rotar eje 90 grados sobre el eje x para que este en vertical
         ejeMesh.rotateX(Math.PI / 2);
         ejeMesh.receiveShadow = true;
         ejeMesh.castShadow = true;
@@ -149,7 +141,6 @@ class Robot extends THREE.Object3D{
         const material = this.applyTextures ? this.antebrazoMaterial : this.robotMaterial;
         const discoMesh = new THREE.Mesh(discoGeometry, material);
         // Levantar el disco para que esté centrado sobre la rotula
-        // discoMesh.position.y = 1.15;
         discoMesh.receiveShadow = true; 
         discoMesh.castShadow = true;
         return discoMesh;
@@ -179,7 +170,6 @@ class Robot extends THREE.Object3D{
         nervio.castShadow = true;
 
         nervio.position.set(x, nervioHeight/2, z);
-        // antebrazo.add(nervio);
         nervios.push(nervio);
     }
     return nervios;
@@ -241,9 +231,6 @@ class Robot extends THREE.Object3D{
     const pinzaIzq = this.createPinza(dedoGeo,palmaGeo,material);
     const pinzaDer = this.createPinza(dedoGeo,palmaGeo,material);
 
-    // Levantar la pinza
-    // pinzaIzq.position.y = 0.8;
-    // pinzaDer.position.y = 0.8;
     // Separar las pinzas
     pinzaIzq.position.z = -0.1;
     pinzaDer.position.z = 0.1;
@@ -272,8 +259,6 @@ class Robot extends THREE.Object3D{
 
         // crear la palma de la pinza
         const palma = new THREE.Mesh(palmaGeo,material);
-        // setting position at the 0,0,0
-        // palma.position.y = 0.1; 
         palma.receiveShadow = true;
         palma.castShadow = true;
 
@@ -313,7 +298,6 @@ class Robot extends THREE.Object3D{
 
     setGiroBase(giro){
         // girar la base
-        // this.brazo.rotation.y = giro * Math.PI / 180;
         this.rotation.y = giro * Math.PI / 180;
         
     }
@@ -363,11 +347,80 @@ class Robot extends THREE.Object3D{
        
         return anim;
     }
+    animationMoveObject(){
+
+        const rotateBaseAnim = new TWEEN.Tween(this.rotation)
+                            .to({y:[this.rotation.y,this.rotation.y+Math.PI/6]},1000)
+                            .interpolation(TWEEN.Interpolation.Bezier)
+                            .easing(TWEEN.Easing.Quadratic.In);
+        const rotateArmAnim = new TWEEN.Tween(this.brazo.rotation)
+                                    .to({z:[0, - Math.PI/6]},1000)
+                                    .interpolation(TWEEN.Interpolation.Bezier)
+                                    .easing(TWEEN.Easing.Quadratic.In);
+        const rotateAntiArmAnim = new TWEEN.Tween(this.antebrazo.rotation)
+                                .to({z:[0, - Math.PI/3]},1000)
+                                .interpolation(TWEEN.Interpolation.Bezier)
+                                .easing(TWEEN.Easing.Quadratic.In);
+        const sep = {sepValue:10};
+        const robot = this;
+        const grabObjectAnim = new TWEEN.Tween(sep)
+                                .to({sepValue:[11,9,5]},1000)
+                                .interpolation(TWEEN.Interpolation.Bezier)
+                                .easing(TWEEN.Easing.Quadratic.In)
+                                .onUpdate(function(){
+                                   robot.setSeparacionPinza(sep.sepValue);
+                                });
+        
+        const rotateArmBack = new TWEEN.Tween(this.brazo.rotation)
+                                .to({z:[-Math.PI/6,0]},1000)
+                                .interpolation(TWEEN.Interpolation.Bezier)
+                                .easing(TWEEN.Easing.Quadratic.In);
+
+        const rotateBaseAnim2 = new TWEEN.Tween(this.rotation)
+                            .to({y:[this.rotation.y,this.rotation.y+Math.PI/2]},1000)
+                            .interpolation(TWEEN.Interpolation.Bezier)
+                            .easing(TWEEN.Easing.Quadratic.In);
+
+        const rotateArmAgain = new TWEEN.Tween(this.brazo.rotation)
+                                .to({z:[0, - Math.PI/6]},1000)
+                                .interpolation(TWEEN.Interpolation.Bezier)
+                                .easing(TWEEN.Easing.Quadratic.In);
+        
+        const dropObjectAnim =  new TWEEN.Tween(sep)
+                                .to({sepValue:[5,9,11]},1000)
+                                .interpolation(TWEEN.Interpolation.Bezier)
+                                .easing(TWEEN.Easing.Quadratic.In)
+                                .onUpdate(function(){
+                                   robot.setSeparacionPinza(sep.sepValue);
+                                });
+        const coords = {antArmZ:-Math.PI/3,armZ:-Math.PI/6};
+        const returnToOriginAntiArmAnim = new TWEEN.Tween(coords)
+                                        .to({antArmZ:[-Math.PI/6,0],armZ:[-Math.PI/6,0]},1000)
+                                        .interpolation(TWEEN.Interpolation.Bezier)
+                                        .easing(TWEEN.Easing.Quadratic.In)
+                                        .onUpdate(function(){
+                                                robot.antebrazo.rotation.z = coords.antArmZ;
+                                                robot.brazo.rotation.z = coords.armZ;
+                                        });
+
+        rotateBaseAnim.chain(rotateArmAnim);
+        rotateArmAnim.chain(rotateAntiArmAnim);
+        rotateAntiArmAnim.chain(grabObjectAnim);
+        grabObjectAnim.chain(rotateArmBack);
+        rotateArmBack.chain(rotateBaseAnim2);
+        rotateBaseAnim2.chain(rotateArmAgain);
+        rotateArmAgain.chain(dropObjectAnim);
+        dropObjectAnim.chain(returnToOriginAntiArmAnim);                        
+
+        return rotateBaseAnim;
+                            
+    }
+    
     animationShutDown(){
         const anim1 = new TWEEN.Tween({angulo:0,antebrazoAngulo:0,separacion:5})
                     .to({angulo:[20,-30],antebrazoAngulo:[20,-90],separacion:[10,3]},10000)
                     .interpolation(TWEEN.Interpolation.Bezier)
-                    .easing(TWEEN.Easing.Bounce.Out)
+                    .easing(TWEEN.Easing.Quadratic.In)
                     .onUpdate((obj) => {
                         this.setGiroBrazo(obj.angulo);
                         this.setGiroAntebrazoZ(obj.antebrazoAngulo);
