@@ -200,13 +200,34 @@ function setupGUI(){
 
     // Construccion del menu de widgets
     const menu = gui.addFolder('Control Robot');
-    menu.add(effectControler,'giroBase',-180,180,0.025).name('Giro Base').listen();
-    menu.add(effectControler,'giroBrazo',-45,45,0.025).name('Giro Brazo').listen();
-    menu.add(effectControler,'giroAntebrazoY',-180,180,0.025).name('Giro Antebrazo Y').listen();
-    menu.add(effectControler,'giroAntebrazoZ',-90,90,0.025).name('Giro Antebrazo Z').listen();
-    menu.add(effectControler,'giroPinza',-40,220,0.025).name('Giro Pinza').listen();
-    menu.add(effectControler,'separacionPinza',0,15,0.025).name('Separacion Pinza');
-    menu.add(effectControler,'solidAlambres').name('Solid/Alambres');
+    menu.add(effectControler,'giroBase',-180,180,0.025).name('Giro Base').listen().
+        onChange(function(value){
+            robot.setGiroBase(value);
+        });
+    menu.add(effectControler,'giroBrazo',-45,45,0.025).name('Giro Brazo').listen()
+        .onChange(function(value){
+            robot.setGiroBrazo(value);
+        });
+    menu.add(effectControler,'giroAntebrazoY',-180,180,0.025).name('Giro Antebrazo Y').listen()
+        .onChange(function(value){
+            robot.setGiroAntebrazoY(value);
+        });
+    menu.add(effectControler,'giroAntebrazoZ',-90,90,0.025).name('Giro Antebrazo Z').listen()
+        .onChange(function(value){
+            robot.setGiroAntebrazoZ(value);
+        });
+    menu.add(effectControler,'giroPinza',-40,220,0.025).name('Giro Pinza').listen()
+        .onChange(function(value){
+            robot.setGiroPinza(value);
+        });
+    menu.add(effectControler,'separacionPinza',0,15,0.025).name('Separacion Pinza')
+        .onChange(function(value){
+            robot.setSeparacionPinza(value);
+        });
+    menu.add(effectControler,'solidAlambres').name('Solid/Alambres')
+        .onChange(function(value){
+            robot.setSolidAlambres(value);
+        });
     // añadir  boton para lanzar animacion de robot
     menu.add({playAnimation: function(){
         playAnimation();
@@ -214,12 +235,13 @@ function setupGUI(){
 
 }
 function playAnimation(){
-    let animation1 = robot.animationMoveObject();
+    let animation1 = robot.animationMoveObject(effectControler);
     animation1.start();
 }
 
 function update(delta){
 
+    
     // Actualizar el robot          
     // robot.setGiroBase(effectControler.giroBase);
     // robot.setGiroBrazo(effectControler.giroBrazo);
