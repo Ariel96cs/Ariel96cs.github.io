@@ -83,10 +83,10 @@ function init(){
     cameraControls.target.set(0,0,0);
 
     // Luces
-    const ambiental = new THREE.AmbientLight(0x404040);
+    const ambiental = new THREE.AmbientLight(0x404040,0.5);
     scene.add(ambiental);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4); // Luz direccional
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2); // Luz direccional
     directionalLight.position.set(0, 10, 0); // Ajusta la posición de la luz
     directionalLight.castShadow = true; // Habilita que la luz proyecte sombras
     scene.add(directionalLight);
@@ -101,18 +101,16 @@ function init(){
     // puntual.position.set(2,7,-4);
     // scene.add(puntual);
 
-    const focal = new THREE.SpotLight(0xFFFFFF,0.6);
-    focal.position.set(0,11,8);
-    focal.target.position.set(0,0,8);
-    focal.angle = Math.PI/4;
-    focal.penumbra = 0.2;
-    focal.castShadow = true;
-
-
-    scene.add(focal);
-    scene.add(focal.target);
-    const spotLightHelper = new THREE.SpotLightHelper(focal);
-    scene.add(spotLightHelper);
+    // const focal = new THREE.SpotLight(0xFFFFFF,0.6);
+    // focal.position.set(0,11,8);
+    // focal.target.position.set(0,0,8);
+    // focal.angle = Math.PI/4;
+    // focal.penumbra = 0.2;
+    // focal.castShadow = true;
+    // scene.add(focal);
+    // scene.add(focal.target);
+    // const spotLightHelper = new THREE.SpotLightHelper(focal);
+    // scene.add(spotLightHelper);
 
     // Monitor
     stats = new Stats();
@@ -248,6 +246,16 @@ function loadScene(){
     scene.add(new THREE.AxesHelper(1000));
 
 }
+function traverseModel(node) {
+    console.log("Node Name:"+node.name);
+    if (node.children) {
+        console.log("Node has children:");
+        node.children.forEach((child) => {
+            traverseModel(child);
+        });
+        console.log("Node children ended for node:"+node.name);
+    }
+}
 
 function addUrbanLampGLTF(){
     const gltfLoader = new GLTFLoader();
@@ -256,7 +264,31 @@ function addUrbanLampGLTF(){
         gltf.scene.rotation.y = -Math.PI;
         gltf.scene.scale.set(5,5,5);
         gltf.scene.name = 'lamp';
+
+        //find the light bulb
+        gltf.scene.traverse((node) => {
+            if (node.name === 'Object_5'){
+                const light = new THREE.PointLight(0xffffff,1,100);
+                light.castShadow = true;
+                light.name = 'light';
+                light.position.set(0,0,0);
+                node.add(light);
+
+                const focal = new THREE.SpotLight(0xFFFFFF,1);
+                focal.position.set(0,1.9,1.5);
+                focal.target.position.set(0,0,3);
+                focal.angle = Math.PI/6;
+                focal.penumbra = 0.2;
+                focal.castShadow = true;
+                node.add(focal);
+                node.add(focal.target);
+
+                
+                // const spotLightHelper = new THREE.SpotLightHelper(focal);
+                // scene.add(spotLightHelper);
+            }});
         scene.add(gltf.scene);
+
 
         // agregar un cuerpo físico prisma rectangular en el lugar de la lámpara
         const groundMaterial = new CANNON.Material("groundMaterial");
@@ -422,7 +454,8 @@ function setupGUI(){
         player2Color: 'rgb(150,0,150)',
         player1Texture: 'wood',
         player2Texture: 'chess',
-        playerTurn: 'Player1'
+        playerTurn: 'Player1',
+        lightOn: true,
     }
 
     // Creacion interfaz
@@ -438,12 +471,29 @@ function setupGUI(){
     menu.add(effectControler,'player2Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Player2 Texture');
     menu.addColor(effectControler,'player1Color').name('Color Player1');
     menu.addColor(effectControler,'player2Color').name('Color Player2');
+    menu.add(effectControler,'lightOn').name('Light On/Off').listen()
+        .onChange(function(value){
+            turnOnOffLamp(scene.getObjectByName('lamp'),value);
+        });
 
     menu.add({resetGame: function(){
         resetGame();
     }},'resetGame').name('Reset Game');
 
 }
+function turnOnOffLamp(lampNode,value){
+    if (lampNode.name === 'light'){
+        lampNode.intensity = effectControler.lightOn ? 1 : 0;
+        console.log("light on/off");
+        return;
+    }
+    if (lampNode.children) {
+        lampNode.children.forEach((child) => {
+            turnOnOffLamp(child,value);
+        });
+    }
+}
+
 function resetGame(){
     game.resetGame();
 

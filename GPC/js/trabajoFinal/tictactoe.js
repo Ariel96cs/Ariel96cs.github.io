@@ -57,7 +57,6 @@ class TicTacToe {
             // check if theres an empty cell
 
             if (this.occupiedCells[i][0] == this.occupiedCells[i][1] && this.occupiedCells[i][1] == this.occupiedCells[i][2] && this.occupiedCells[i][0] != -1){
-                console.log("player "+this.occupiedCells[i][0]+" wins");
                 this.gameOver = true;
                 this.winner = this.occupiedCells[i][0];
                 
@@ -67,7 +66,6 @@ class TicTacToe {
         // check columns
         for(let j=0;j<3;j++){
             if (this.occupiedCells[0][j] == this.occupiedCells[1][j] && this.occupiedCells[1][j] == this.occupiedCells[2][j] && this.occupiedCells[0][j] != -1){
-                console.log("player "+this.occupiedCells[0][j]+" wins");
                 this.gameOver = true;
                 this.winner = this.occupiedCells[0][j];
                 return;
@@ -75,13 +73,11 @@ class TicTacToe {
         }
         // check diagonals
         if (this.occupiedCells[0][0] == this.occupiedCells[1][1] && this.occupiedCells[1][1] == this.occupiedCells[2][2] && this.occupiedCells[0][0] != -1){
-            console.log("player "+this.occupiedCells[0][0]+" wins");
             this.gameOver = true;
             this.winner = this.occupiedCells[0][0];
             return;
         }
         if (this.occupiedCells[0][2] == this.occupiedCells[1][1] && this.occupiedCells[1][1] == this.occupiedCells[2][0] && this.occupiedCells[0][2] != -1){
-            console.log("player "+this.occupiedCells[0][2]+" wins");
             this.gameOver = true;
             this.winner = this.occupiedCells[0][2];
             return;
@@ -91,11 +87,7 @@ class TicTacToe {
     }
 
     updateScore(){
-        console.log("updating score");
-        console.log("gameOver: "+this.gameOver);
-        console.log("updatedScore: "+this.updatedScore);
         if (!this.updatedScore && this.gameOver) {
-            console.log("Updating score");
             if (this.winner==2){
                 this.score2 +=1;
                 this.player1StartedGame = false;
@@ -112,19 +104,13 @@ class TicTacToe {
     }
     play(i,j){
         
-        console.log("playing "+i+","+j);
         if (this.gameOver){
-            console.log("game over checking for tabla");
-            console.log("totalFreeCells: "+this.totalFreeCells);
-            console.log("winner: "+this.winner);
-            console.log("player1Turn: "+this.player1StartedGame);
 
             if(this.totalFreeCells == 0 && this.winner==-1){
                 this.player1Turn = !this.player1StartedGame;
             }
             return;
         } 
-        console.log("player1Turn: "+this.player1Turn);
         if (this.player1Turn){
             this.addPlayer1ObjOverCell(i,j);
         }
@@ -228,23 +214,18 @@ class TicTacToe {
 
     }
     addBallsToScene(scene){
-        console.log("adding balls to scene");
         this.balls.forEach(ball => {
             scene.add(ball);
-            console.log("view ball added to scene",ball.name);
         });
 
         this.physicBalls.forEach(ball => {
             this.world.addBody(ball);
-            console.log("physic ball added to world");
         });
     }
     addPlayerObjOverCell(obj,i,j,playerId){
-        console.log("adding player "+playerId+" over cell "+i+","+j);
 
         // check that the cell is not occupied
         if(this.occupiedCells[i][j] != -1){
-            console.log("cell "+i+","+j+" is occupied");
             return;
         }
         
@@ -294,11 +275,6 @@ class TicTacToe {
         this.gameOver = false;
         this.winner = -1;
         this.totalFreeCells=9;
-        // this.balls = [];
-        // this.physicBalls = [];
-        
-
-        // this.board.updateBoardPosition(0,0,0);
 
     }
 
@@ -361,7 +337,6 @@ class TicTacToeBoard extends THREE.Object3D {
                 cell.name = "cell"+i+","+j;
                 cell.userData = {i:i,j:j};
                 this.add(cell);
-                console.log("cell "+i+","+j+" created");
             }
         }
         this.createPhysicBoard();
@@ -431,7 +406,6 @@ class TicTacToeBoard extends THREE.Object3D {
             });
             anim1.onComplete(function(){
                 setTimeout(function(){
-                    console.log("animacion 1 completada");
                     anim2.start();
                 },1000);
             })
