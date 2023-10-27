@@ -402,6 +402,7 @@ function setupGUI(){
         player2Color: 'rgb(150,0,150)',
         player1Texture: 'wood',
         player2Texture: 'chess',
+        playerTurn: 'Player1'
     }
 
     // Creacion interfaz
@@ -409,14 +410,15 @@ function setupGUI(){
 
     // Construccion del menu de widgets
     const menu = gui.addFolder('Controles');
-    menu.add(effectControler,'mensaje').name('Game');
+    menu.add(effectControler,'mensaje').name('Game').disable();
+    menu.add(effectControler,'score1').name('Score Player1').listen().disable();
+    menu.add(effectControler,'score2').name('Score Player2').listen().disable();
+    menu.add(effectControler,'playerTurn').name('Current Turn').listen().disable();
     menu.add(effectControler,'player1Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Player1 Texture');
     menu.add(effectControler,'player2Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Player2 Texture');
     menu.addColor(effectControler,'player1Color').name('Color Player1');
     menu.addColor(effectControler,'player2Color').name('Color Player2');
-    menu.add(effectControler,'score1').name('Score Player1').listen();
-    menu.add(effectControler,'score2').name('Score Player2').listen();
-    
+
     menu.add({resetGame: function(){
         resetGame();
     }},'resetGame').name('Reset Game');
@@ -440,6 +442,12 @@ function update(delta){
 
     game.player1ObjTex = effectControler.player1Texture;
     game.player2ObjTex = effectControler.player2Texture;
+
+    if (game.player1Turn){
+        effectControler.playerTurn = 'Player 1';
+    }else{
+        effectControler.playerTurn = 'Player 2';
+    }
 
     TWEEN.update(delta);
 }
