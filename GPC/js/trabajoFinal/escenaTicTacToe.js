@@ -243,7 +243,7 @@ function loadScene(){
 
     const room = makeRoom();
     scene.add(room);
-    // addGLTFBox();
+    addGLTFBox();
     addUrbanLampGLTF();
     scene.add(new THREE.AxesHelper(1000));
 
