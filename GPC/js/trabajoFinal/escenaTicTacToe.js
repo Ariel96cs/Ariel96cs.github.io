@@ -101,14 +101,16 @@ function init(){
     // puntual.position.set(2,7,-4);
     // scene.add(puntual);
 
-    const focal = new THREE.SpotLight(0xFFFFFF,0.9);
-    focal.position.set(0,10,15);
-    focal.target.position.set(0,0,0);
-    focal.angle = Math.PI/6;
+    const focal = new THREE.SpotLight(0xFFFFFF,0.6);
+    focal.position.set(0,11,8);
+    focal.target.position.set(0,0,8);
+    focal.angle = Math.PI/4;
     focal.penumbra = 0.2;
     focal.castShadow = true;
 
+
     scene.add(focal);
+    scene.add(focal.target);
     const spotLightHelper = new THREE.SpotLightHelper(focal);
     scene.add(spotLightHelper);
 
@@ -241,9 +243,35 @@ function loadScene(){
 
     const room = makeRoom();
     scene.add(room);
-    addGLTFBox();
-
+    // addGLTFBox();
+    addUrbanLampGLTF();
     scene.add(new THREE.AxesHelper(1000));
+
+}
+
+function addUrbanLampGLTF(){
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load('./models/urban_street_light/scene.gltf',function (gltf){
+        gltf.scene.position.set(0,-7.5,15)
+        gltf.scene.rotation.y = -Math.PI;
+        gltf.scene.scale.set(5,5,5);
+        gltf.scene.name = 'lamp';
+        scene.add(gltf.scene);
+
+        // agregar un cuerpo físico prisma rectangular en el lugar de la lámpara
+        const groundMaterial = new CANNON.Material("groundMaterial");
+        groundMaterial.restitution = 1;
+        const lampShape = new CANNON.Vec3(1,10,1);
+        const lampBody = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(lampShape),
+            position: new CANNON.Vec3(0,-7.5,15),
+            material: groundMaterial
+        });
+        world.addBody(lampBody);
+
+    });
+
 
 }
 
@@ -264,14 +292,6 @@ function addGLTFBox(){
         const y = -7.5;
         const groundMaterial = new CANNON.Material("groundMaterial");
         groundMaterial.restitution = 0.3;
-        // create the physic floor  
-        // const physicFloor = new CANNON.Body({
-        //     mass: 0,
-        //     shape: new CANNON.Box(wallsShape),
-        //     position: new CANNON.Vec3(0,y,0),
-        //     material: groundMaterial
-        // });
-        // world.addBody(physicFloor);
 
         const physicWall1 = new CANNON.Body({
             mass: 0,
@@ -340,7 +360,7 @@ function makeRoom(){
     const wallsShape = new CANNON.Vec3(50,0.1,50);
     const wallDistance = 22.5;
     const groundMaterial = new CANNON.Material("groundMaterial");
-    groundMaterial.restitution = 0.0001;
+    groundMaterial.restitution = 0.001;
     // create the physic floor  
     const physicFloor = new CANNON.Body({
         mass: 0,
