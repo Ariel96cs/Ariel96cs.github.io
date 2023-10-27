@@ -410,12 +410,13 @@ function setupGUI(){
     // Construccion del menu de widgets
     const menu = gui.addFolder('Controles');
     menu.add(effectControler,'mensaje').name('Game');
+    menu.add(effectControler,'player1Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Player1 Texture');
+    menu.add(effectControler,'player2Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Player2 Texture');
     menu.addColor(effectControler,'player1Color').name('Color Player1');
     menu.addColor(effectControler,'player2Color').name('Color Player2');
     menu.add(effectControler,'score1').name('Score Player1').listen();
     menu.add(effectControler,'score2').name('Score Player2').listen();
-    menu.add(effectControler,'player1Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Texture Player1');
-    menu.add(effectControler,'player2Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Texture Player2');
+    
     menu.add({resetGame: function(){
         resetGame();
     }},'resetGame').name('Reset Game');

@@ -35,20 +35,27 @@ class TicTacToe {
 
         // logic
         this.player1Turn = true;
+        this.player1StartedGame = true;
+
         this.gameOver = false;
         this.playerGeometry = new THREE.SphereGeometry(1,50,50);
         this.winner = -1;
-        this.newGame = true;
+        
         this.score1 = 0;
         this.score2 = 0;
+        this.updatedScore = false;
+        this.totalFreeCells = 9;
+      
         
     }
 
 
     checkGameOver(){
         // check rows
-        const emptyCell = false;
+        if (this.totalFreeCells == 0) this.gameOver = true;
         for(let i=0;i<3;i++){
+            // check if theres an empty cell
+
             if (this.occupiedCells[i][0] == this.occupiedCells[i][1] && this.occupiedCells[i][1] == this.occupiedCells[i][2] && this.occupiedCells[i][0] != -1){
                 console.log("player "+this.occupiedCells[i][0]+" wins");
                 this.gameOver = true;
@@ -79,22 +86,44 @@ class TicTacToe {
             this.winner = this.occupiedCells[0][2];
             return;
         }
-        this.updateScore();
+        
+        
     }
+
     updateScore(){
-        if (this.newGame) return;
-        if (this.winner==2){
-            this.score2 +=1;
-            this.newGame = false;
+        console.log("updating score");
+        console.log("gameOver: "+this.gameOver);
+        console.log("updatedScore: "+this.updatedScore);
+        if (!this.updatedScore && this.gameOver) {
+            console.log("Updating score");
+            if (this.winner==2){
+                this.score2 +=1;
+                this.player1StartedGame = false;
+            }
+            else if (this.winner==1){
+                this.score1 +=1;
+                this.player1StartedGame = true;
+            }
+            this.player1Turn = this.winner==1;
+            this.updatedScore = true;
+            
         }
-        else if (this.winner==1){
-            this.score1 +=1;
-            this.newGame = false;
-        }
+        
     }
     play(i,j){
+        
         console.log("playing "+i+","+j);
-        if (this.gameOver) return;
+        if (this.gameOver){
+            console.log("game over checking for tabla");
+            console.log("totalFreeCells: "+this.totalFreeCells);
+            console.log("winner: "+this.winner);
+            console.log("player1Turn: "+this.player1StartedGame);
+
+            if(this.totalFreeCells == 0 && this.winner==-1){
+                this.player1Turn = !this.player1StartedGame;
+            }
+            return;
+        } 
         console.log("player1Turn: "+this.player1Turn);
         if (this.player1Turn){
             this.addPlayer1ObjOverCell(i,j);
@@ -103,6 +132,10 @@ class TicTacToe {
             this.addPlayer2ObjOverCell(i,j);
         }
         this.checkGameOver();
+        this.updateScore();
+        if (this.gameOver && this.totalFreeCells == 0 && this.winner==-1){
+                this.player1Turn = !this.player1StartedGame;
+        } 
     }
     setPlayer1ObjTex(tex){
         this.player1ObjTex = tex;
@@ -235,6 +268,8 @@ class TicTacToe {
         this.player1Turn = !this.player1Turn;
         this.world.addBody(physicPlayer);
         this.scene.add(obj);
+        this.updatedScore = false;
+        this.totalFreeCells -=1;
     }
     removeBallsFromScene(){
         // remove the balls from the scene
@@ -257,11 +292,11 @@ class TicTacToe {
         }
         // reset the logic
         this.gameOver = false;
-        this.player1Turn = true;
         this.winner = -1;
+        this.totalFreeCells=9;
         // this.balls = [];
         // this.physicBalls = [];
-        this.newGame = true;
+        
 
         // this.board.updateBoardPosition(0,0,0);
 
