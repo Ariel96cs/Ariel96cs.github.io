@@ -25,8 +25,8 @@ class TicTacToe {
                 this.occupiedCells[i][j] = -1;
             }
         }
-        this.player1ObjTex = new THREE.TextureLoader().load('imgs/wood512.jpg');
-        this.player2ObjTex = new THREE.TextureLoader().load('imgs/chess.png');
+        this.player1ObjTex = 'wood';
+        this.player2ObjTex = 'chess';
         
         this.balls = [];
         this.physicBalls = [];
@@ -112,16 +112,43 @@ class TicTacToe {
         this.player2ObjTex = tex;
     }
 
-    createPlayer1Obj(){
-        const entorno = ["./imgs/Yokohama2/posx.jpg","./imgs/Yokohama2/negx.jpg",
-        "./imgs/Yokohama2/posy.jpg","./imgs/Yokohama2/negy.jpg",
-        "./imgs/Yokohama2/posz.jpg","./imgs/Yokohama2/negz.jpg"];
-        const entornoTex = new THREE.CubeTextureLoader().load(entorno);
-        const material = new THREE.MeshPhongMaterial({envMap: entornoTex, 
-                                                        color: this.color1,
+    getBallMaterial(textureName,color){
+        let texture;
+        let material;
+        switch(textureName){
+            case 'chess':
+                texture = new THREE.TextureLoader().load("./imgs/chess.png");
+                material = new THREE.MeshLambertMaterial({map:texture,color:color});
+                break;
+            case 'cube':
+                const entorno = ["./imgs/Yokohama2/posx.jpg","./imgs/Yokohama2/negx.jpg",
+                                "./imgs/Yokohama2/posy.jpg","./imgs/Yokohama2/negy.jpg",
+                                "./imgs/Yokohama2/posz.jpg","./imgs/Yokohama2/negz.jpg"];
+                texture = new THREE.CubeTextureLoader().load(entorno);
+                material = new THREE.MeshPhongMaterial({envMap: texture, 
+                                                        color: color,
                                                         specular:'gray',
                                                         shininess: 30,
                                                         });
+                break;
+            case 'rust':
+                texture = new THREE.TextureLoader().load("./imgs/rust_coarse_01_diff_1k.jpg");
+                material = new THREE.MeshLambertMaterial({map:texture,color:color});
+                break;
+            case 'wood':
+                texture = new THREE.TextureLoader().load("./imgs/wood512.jpg");
+                material = new THREE.MeshLambertMaterial({map:texture,color:color});
+                break;
+            default:
+                texture = new THREE.TextureLoader().load("./imgs/chess.jpg");
+                material = new THREE.MeshLambertMaterial({map:texture,color:color});
+                break;
+        }
+        return material;
+    }
+
+    createPlayer1Obj(){
+        const material = this.getBallMaterial(this.player1ObjTex,this.color1);
         const obj = new THREE.Mesh(this.playerGeometry,material);
         obj.name = "player1";
         obj.castShadow = true;
@@ -130,8 +157,8 @@ class TicTacToe {
     }
 
     createPlayer2Obj(){
-        
-        const obj = new THREE.Mesh(this.playerGeometry,new THREE.MeshLambertMaterial({map:this.player2ObjTex,color:this.color2}));
+        const material = this.getBallMaterial(this.player2ObjTex,this.color2);
+        const obj = new THREE.Mesh(this.playerGeometry,material);
         obj.castShadow = true;
         obj.receiveShadow = true;
         obj.name = "player2";
@@ -183,10 +210,10 @@ class TicTacToe {
         console.log("adding player "+playerId+" over cell "+i+","+j);
 
         // check that the cell is not occupied
-        // if(this.occupiedCells[i][j] != -1){
-        //     console.log("cell "+i+","+j+" is occupied");
-        //     return;
-        // }
+        if(this.occupiedCells[i][j] != -1){
+            console.log("cell "+i+","+j+" is occupied");
+            return;
+        }
         
         const physicPlayer = this.createPhysicPlayer();
         
@@ -209,16 +236,19 @@ class TicTacToe {
         this.world.addBody(physicPlayer);
         this.scene.add(obj);
     }
+    removeBallsFromScene(){
+        // remove the balls from the scene
+        this.balls.forEach(ball => {
+            this.scene.remove(ball);
+        });
+        // remove the physic balls from the world
+        this.physicBalls.forEach(ball => {
+            this.world.removeBody(ball);
+        });
+    }
     // resetGame
     resetGame(){
-        // // remove the balls from the scene
-        // this.balls.forEach(ball => {
-        //     this.scene.remove(ball);
-        // });
-        // // remove the physic balls from the world
-        // this.physicBalls.forEach(ball => {
-        //     this.world.removeBody(ball);
-        // });
+        
         // reset the occupied cells matrix
         for(let i=0;i<3;i++){
             for(let j=0;j<3;j++){

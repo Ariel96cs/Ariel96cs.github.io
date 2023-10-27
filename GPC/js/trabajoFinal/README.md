@@ -9,11 +9,18 @@ Features
 * botón de reseteo del juego
 
 TODO:
-* Mejorar el look del entorno
-* Arreglar que se actualice el score
+
 * Cambiar la animación física por una animación con tween al ganar un juego
-* Agregar una animación q al resetear el juego se rote el tablero y caigan las bolas dentro de algún contenedor
 * Pintar cada casilla del color del jugador que ponga la pieza
-* Al resetear, que el tablero vuelva a su posicion inicial
-* Averiguar pq las fichas del jugador q gana se quedan como que pegadas al tablero.
 * Arreglar las rotaciones del tablero con las flechas del teclado
+
+* Poner un selector de texturas predeterminado para cada jugador
+* Quitar del effectController el manejo de rotación del tablero
+* Arreglar que se actualice el score
+* Eliminar las rotaciones del tablero con los eventos de las flechas
+* Arreglar la ventana en miniatura que se deforma de vez en cuando
+* Al terminar un juego, el ganador del juego anterior sale primero, si fue tabla sale el jugador contrario al cual comenzó jugando.
+* poner una farola y mover la luz focal a la farola
+* Poner un límite máximo de puntos a ganar por jugador y al alcanzarlo hacer una animación
+* Quitar los helpers de la escena.
+* Al terminar un juego no se pueden poner más bolas

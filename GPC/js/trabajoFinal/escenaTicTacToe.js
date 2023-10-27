@@ -86,30 +86,25 @@ function init(){
     const ambiental = new THREE.AmbientLight(0x404040);
     scene.add(ambiental);
 
-    // const direccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
-    // direccional.position.set(-1,5,-1);
-    // direccional.castShadow = true;
-    // scene.add(direccional);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); // Luz direccional
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4); // Luz direccional
     directionalLight.position.set(0, 10, 0); // Ajusta la posición de la luz
     directionalLight.castShadow = true; // Habilita que la luz proyecte sombras
     scene.add(directionalLight);
 
-    // Ajusta la configuración de las sombras
-    directionalLight.shadow.mapSize.width = 1024;
-    directionalLight.shadow.mapSize.height = 1024;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
+    // // Ajusta la configuración de las sombras
+    // directionalLight.shadow.mapSize.width = 1024;
+    // directionalLight.shadow.mapSize.height = 1024;
+    // directionalLight.shadow.camera.near = 0.5;
+    // directionalLight.shadow.camera.far = 50;
 
     // const puntual = new THREE.PointLight(0xFFFFFF,0.4);
     // puntual.position.set(2,7,-4);
     // scene.add(puntual);
 
     const focal = new THREE.SpotLight(0xFFFFFF,0.9);
-    focal.position.set(0,10,10);
+    focal.position.set(0,10,15);
     focal.target.position.set(0,0,0);
-    focal.angle = Math.PI/8;
+    focal.angle = Math.PI/6;
     focal.penumbra = 0.2;
     focal.castShadow = true;
 
@@ -131,7 +126,7 @@ function init(){
 
     //capture double click event to place a ball on the board
     renderer.domElement.addEventListener('dblclick',placeBall);
-    window.addEventListener('keydown',onRobotMoveKeyDown,false);
+    // window.addEventListener('keydown',onRobotMoveKeyDown,false);
 }
 function onRobotMoveKeyDown(event){
     console.log("Evento de tecla presionada");
@@ -405,8 +400,8 @@ function setupGUI(){
         score2:0,
         player1Color: 'rgb(150,150,150)',
         player2Color: 'rgb(150,0,150)',
-        angleX: 0,
-        angleZ: 0
+        player1Texture: 'wood',
+        player2Texture: 'chess',
     }
 
     // Creacion interfaz
@@ -419,9 +414,8 @@ function setupGUI(){
     menu.addColor(effectControler,'player2Color').name('Color Player2');
     menu.add(effectControler,'score1').name('Score Player1').listen();
     menu.add(effectControler,'score2').name('Score Player2').listen();
-    menu.add(effectControler,'angleX',-45,45,1).name('Angulo X').listen();
-    menu.add(effectControler,'angleZ',-45,45,1).name('Angulo Z').listen();
-    
+    menu.add(effectControler,'player1Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Texture Player1');
+    menu.add(effectControler,'player2Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Texture Player2');
     menu.add({resetGame: function(){
         resetGame();
     }},'resetGame').name('Reset Game');
@@ -430,21 +424,22 @@ function setupGUI(){
 function resetGame(){
     game.resetGame();
 
-    // game.board.updateBoardPosition(initialX,initialY,initialZ);
     game.board.animate();
 
 }
 
+
 function update(delta){
     game.color1 = new THREE.Color(effectControler.player1Color);
     game.color2 = new THREE.Color(effectControler.player2Color);
+
     
     effectControler.score1 = game.score1;
     effectControler.score2 = game.score2;
 
-    // if (game.gameOver){
-        // game.board.rotateBoard(effectControler.angleX,effectControler.angleZ);
-    // }
+    game.player1ObjTex = effectControler.player1Texture;
+    game.player2ObjTex = effectControler.player2Texture;
+
     TWEEN.update(delta);
 }
 
