@@ -218,6 +218,23 @@ function traverseModel(node) {
     }
 }
 
+function loadEnviromentAudio(){
+    const listener = new THREE.AudioListener();
+    scene.add(listener);
+    listener.name = 'env-audio-listener';
+    const sound = new THREE.Audio(listener);
+    sound.name = 'env-audio';
+    const audioLoader = new THREE.AudioLoader();
+    audioLoader.load('./audio/ambient.mp3',function(buffer){
+        sound.setBuffer(buffer);
+        sound.setLoop(true);
+        sound.setVolume(0.5);
+        sound.play();
+    });
+    scene.add(sound);
+
+}
+
 function addUrbanLampGLTF(){
     const gltfLoader = new GLTFLoader();
     gltfLoader.load('./models/urban_street_light/scene.gltf',function (gltf){
@@ -408,6 +425,7 @@ function setupGUI(){
         player2Texture: 'chess',
         playerTurn: 'Player1',
         lightOn: true,
+        mute: true,
     }
 
     // Creacion interfaz
@@ -427,6 +445,23 @@ function setupGUI(){
         .onChange(function(value){
             turnOnOffLamp(scene.getObjectByName('lamp'),value);
         });
+    // add mute and unmute button
+    menu.add(effectControler,'mute').name('Mute/Unmute').listen().onChange(function(value){ 
+        const envAudio = scene.getObjectByName('env-audio');
+        if (value){
+            if(envAudio){
+                envAudio.pause();
+            }
+        }
+        else{
+            if(envAudio){
+                scene.getObjectByName('env-audio').play();
+            }
+            else{
+                loadEnviromentAudio();
+            }
+        }
+    });
 
     menu.add({resetGame: function(){
         resetGame();
