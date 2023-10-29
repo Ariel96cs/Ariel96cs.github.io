@@ -52,6 +52,7 @@ function init(){
     renderer.autoClear = false
     renderer.antialias = true;
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     // Escena
     scene = new THREE.Scene();
@@ -80,24 +81,21 @@ function init(){
     scene.add(ambiental);
 
     const direccional = new THREE.DirectionalLight(0xFFFFFF,0.5);
-    direccional.position.set(-1,5,-1);
+    direccional.position.set(80,130,100);
     direccional.castShadow = true;
+    direccional.shadow.radius = 8;
     scene.add(direccional);
-
-    const puntual = new THREE.PointLight(0xFFFFFF,0.4);
-    puntual.position.set(2,7,-4);
-    scene.add(puntual);
+    // scene.add(new THREE.DirectionalLightHelper(direccional,1));
 
     const focal = new THREE.SpotLight(0xFFFFFF,0.4);
     focal.position.set(0,20,10);
     focal.target.position.set(0,0,0);
-    focal.angle = Math.PI/8;
     focal.penumbra = 0.2;
     focal.castShadow = true;
-
+    focal.shadow.radius = 8;
     scene.add(focal);
-    const spotLightHelper = new THREE.SpotLightHelper(focal);
-    scene.add(spotLightHelper);
+    // const spotLightHelper = new THREE.SpotLightHelper(focal);
+    // scene.add(spotLightHelper);
 
     // Monitor
     stats = new Stats();
@@ -174,22 +172,10 @@ function updateAspectRatio(){
     camera.aspect = ar;
     camera.updateProjectionMatrix();
 
-    if (ar > 1) {
-        miniaturaCamera.left = -L * ar;
-        miniaturaCamera.right  = L * ar;
-        miniaturaCamera.top = L;
-        miniaturaCamera.bottom = -L; 
-
-    }
-    else{
-        miniaturaCamera.left = -L;
-        miniaturaCamera.right = L;
-        miniaturaCamera.top = L/ar;
-        miniaturaCamera.bottom = -L/ar; 
-    }
     miniaturaCamera.updateProjectionMatrix();
-    camera.updateProjectionMatrix();
+    
 }
+
 function enableCastShadow(object) {
     if (object instanceof THREE.Object3D) {
         object.castShadow = true; // Enable castShadow for the current object
@@ -231,10 +217,6 @@ function loadScene(){
     
     //se añade el robot a la escena
     scene.add(robot);
-
-    // Posicionar el robot
-    // robot.setPosition(robotX,robotY,robotZ);
-    //robot.addToScene(scene);
 
 
     // Habitacion
@@ -303,7 +285,11 @@ function setupGUI(){
         });
     menu.add(effectControler,'solidAlambres').name('Solid/Alambres')
         .onChange(function(value){
-            robot.setSolidAlambres(value);
+            scene.traverseVisible(function(obj) {
+                if (obj instanceof THREE.Mesh) {
+                    obj.material.wireframe = value;
+                }
+            });
         });
     // añadir  boton para lanzar animacion de robot
     menu.add({playAnimation: function(){
@@ -322,6 +308,7 @@ function update(delta){
 }
 
 function render(delta){
+    
     renderer.clear();
     requestAnimationFrame(render);
     update(delta);
@@ -338,7 +325,7 @@ function render(delta){
 
     renderer.setViewport(0,0,window.innerWidth,window.innerHeight);
     renderer.render(scene,camera);
-
+    stats.update();
 }
 
 // 

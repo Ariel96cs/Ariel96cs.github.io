@@ -99,8 +99,8 @@ class Robot extends THREE.Object3D{
         const material = this.applyTextures ? this.baseMaterial : this.robotMaterial;
         const baseMesh = new THREE.Mesh(baseGeometry, material);
         baseMesh.position.y = 0.1; // Levantar la base 0.1 unidades para que no esté enterrada en el suelo
-        baseMesh.receiveShadow = true;
-        baseMesh.castShadow = true;
+        // baseMesh.receiveShadow = true;
+        // baseMesh.castShadow = true;
 
         return baseMesh;
     }
@@ -111,8 +111,8 @@ class Robot extends THREE.Object3D{
         const material = this.applyTextures ? this.baseMaterial : this.robotMaterial;
         const ejeMesh = new THREE.Mesh(ejeGeometry, material);
         ejeMesh.rotateX(Math.PI / 2);
-        ejeMesh.receiveShadow = true;
-        ejeMesh.castShadow = true;
+        // ejeMesh.receiveShadow = true;
+        // ejeMesh.castShadow = true;
         return ejeMesh;
     }
 
@@ -131,8 +131,8 @@ class Robot extends THREE.Object3D{
     const material = this.applyTextures ? this.rotulaMaterial : this.robotMaterial;
     const rotulaMesh = new THREE.Mesh(rotulaGeometry, material);
     rotulaMesh.position.y = 1.15; // Levantar la rótula 1.2 unidades para que esté sobre el espárrago
-    rotulaMesh.receiveShadow = true;
-    rotulaMesh.castShadow = true;
+    // rotulaMesh.receiveShadow = true;
+    // rotulaMesh.castShadow = true;
     return rotulaMesh;
     }
 
@@ -141,8 +141,8 @@ class Robot extends THREE.Object3D{
         const material = this.applyTextures ? this.antebrazoMaterial : this.robotMaterial;
         const discoMesh = new THREE.Mesh(discoGeometry, material);
         // Levantar el disco para que esté centrado sobre la rotula
-        discoMesh.receiveShadow = true; 
-        discoMesh.castShadow = true;
+        // discoMesh.receiveShadow = true; 
+        // discoMesh.castShadow = true;
         return discoMesh;
     }
 
@@ -166,8 +166,8 @@ class Robot extends THREE.Object3D{
         const z = Math.sin(angle) * radiusPrisms;
 
         const nervio = new THREE.Mesh(nervioGeometry, material);
-        nervio.receiveShadow = true;
-        nervio.castShadow = true;
+        // nervio.receiveShadow = true;
+        // nervio.castShadow = true;
 
         nervio.position.set(x, nervioHeight/2, z);
         nervios.push(nervio);
@@ -204,12 +204,49 @@ class Robot extends THREE.Object3D{
             0,6,2, // cara trasera
             0,4,6, // cara trasera
         ]);
+        const uVS = new Float32Array( [
+            0.0, 0.0,
+            0.0, 1.0, 
+            1.0, 0.0, 
+            0.0, 1.0,
+            1.0, 1.0,
+            1.0, 0.0, 
+            
+            0.0, 1.0, 
+            0.0, 0.0, 
+            1.0, 0.0, 
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0,
+    
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 1.0,
+            1.0, 1.0,
+            1.0, 0.0,
+            0.0, 0.0,
+    
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 1.0,
+            1.0, 1.0,
+            1.0, 0.0,
+            0.0, 0.0,
+    
+            0.0, 0.0,
+            0.0, 1.0,
+            1.0, 1.0,
+            1.0, 1.0,
+            1.0, 0.0,
+            0.0, 0.0,
+        ] );
+
         
         dedo.setIndex(new THREE.BufferAttribute(indices,1));
         dedo.setAttribute('position',new THREE.BufferAttribute(vertices,3));
 
         dedo.computeVertexNormals();
-    
+        dedo.setAttribute('uv', new THREE.BufferAttribute(uVS, 2));
         return dedo;
     }
 
@@ -221,15 +258,15 @@ class Robot extends THREE.Object3D{
     const cilindroGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.4, 32); // Radio superior, radio inferior, altura, número de caras
     const cilindroMesh = new THREE.Mesh(cilindroGeometry, material); 
     cilindroMesh.rotation.x = Math.PI / 2;
-    cilindroMesh.receiveShadow = true;
-    cilindroMesh.castShadow = true;
+    // cilindroMesh.receiveShadow = true;
+    // cilindroMesh.castShadow = true;
     
     const palmaGeo = new THREE.BoxGeometry(0.19,0.2,0.04);
     const dedoGeo = this.createDedoGeo();
     
     material = this.applyTextures ? this.pinzasMaterial : this.robotMaterial;
     const pinzaIzq = this.createPinza(dedoGeo,palmaGeo,material);
-    const pinzaDer = this.createPinza(dedoGeo,palmaGeo,material);
+    const pinzaDer = pinzaIzq.clone();
 
     // Separar las pinzas
     pinzaIzq.position.z = -0.1;
@@ -259,13 +296,13 @@ class Robot extends THREE.Object3D{
 
         // crear la palma de la pinza
         const palma = new THREE.Mesh(palmaGeo,material);
-        palma.receiveShadow = true;
-        palma.castShadow = true;
+        // palma.receiveShadow = true;
+        // palma.castShadow = true;
 
         
         const dedoMesh = new THREE.Mesh(dedoGeo,material);
-        dedoMesh.receiveShadow = true;
-        dedoMesh.castShadow = true;
+        // dedoMesh.receiveShadow = true;
+        // dedoMesh.castShadow = true;
 
         // rotar 90 grados sobre el eje y 
         dedoMesh.rotateY(Math.PI/2);
@@ -339,6 +376,13 @@ class Robot extends THREE.Object3D{
     animationMoveObject(effectControler){
         const sep = {sepValue:effectControler.separacionPinza};
         const robot = this;
+        this.setGiroBrazo(0);
+        this.setGiroAntebrazoZ(0);
+        this.setGiroAntebrazoY(0);
+        this.setGiroPinza(0);
+        this.setSeparacionPinza(10);
+        
+        
         const rotateBaseAnim = new TWEEN.Tween(robot.rotation)
                             .to({y:[this.rotation.y,this.rotation.y+Math.PI/6]},1000)
                             .interpolation(TWEEN.Interpolation.Bezier)

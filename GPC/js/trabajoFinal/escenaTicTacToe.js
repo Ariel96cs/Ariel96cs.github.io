@@ -83,34 +83,8 @@ function init(){
     cameraControls.target.set(0,0,0);
 
     // Luces
-    const ambiental = new THREE.AmbientLight(0x404040,0.5);
+    const ambiental = new THREE.AmbientLight(0x404040,2);
     scene.add(ambiental);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.2); // Luz direccional
-    directionalLight.position.set(0, 10, 0); // Ajusta la posición de la luz
-    directionalLight.castShadow = true; // Habilita que la luz proyecte sombras
-    scene.add(directionalLight);
-
-    // // Ajusta la configuración de las sombras
-    // directionalLight.shadow.mapSize.width = 1024;
-    // directionalLight.shadow.mapSize.height = 1024;
-    // directionalLight.shadow.camera.near = 0.5;
-    // directionalLight.shadow.camera.far = 50;
-
-    // const puntual = new THREE.PointLight(0xFFFFFF,0.4);
-    // puntual.position.set(2,7,-4);
-    // scene.add(puntual);
-
-    // const focal = new THREE.SpotLight(0xFFFFFF,0.6);
-    // focal.position.set(0,11,8);
-    // focal.target.position.set(0,0,8);
-    // focal.angle = Math.PI/4;
-    // focal.penumbra = 0.2;
-    // focal.castShadow = true;
-    // scene.add(focal);
-    // scene.add(focal.target);
-    // const spotLightHelper = new THREE.SpotLightHelper(focal);
-    // scene.add(spotLightHelper);
 
     // Monitor
     stats = new Stats();
@@ -126,7 +100,6 @@ function init(){
 
     //capture double click event to place a ball on the board
     renderer.domElement.addEventListener('dblclick',placeBall);
-    // window.addEventListener('keydown',onRobotMoveKeyDown,false);
 }
 function onRobotMoveKeyDown(event){
     console.log("Evento de tecla presionada");
@@ -201,6 +174,7 @@ function setCameras(ar) {
     camaraPerspectiva.position.set(1, 2, 10);
     camaraPerspectiva.lookAt(new THREE.Vector3(0, 0, 0))
     camera = camaraPerspectiva.clone()
+    camera.position.set(10, 15, 10);
 
     //Añadir las cámaras a la escena
     scene.add(camera)
@@ -215,21 +189,8 @@ function updateAspectRatio(){
     camera.aspect = ar;
     camera.updateProjectionMatrix();
 
-    if (ar > 1) {
-        miniCamera.left = -L * ar;
-        miniCamera.right  = L * ar;
-        miniCamera.top = L;
-        miniCamera.bottom = -L; 
-
-    }
-    else{
-        miniCamera.left = -L;
-        miniCamera.right = L;
-        miniCamera.top = L/ar;
-        miniCamera.bottom = -L/ar; 
-    }
     miniCamera.updateProjectionMatrix();
-    camera.updateProjectionMatrix();
+    
 }
     
 
@@ -243,7 +204,7 @@ function loadScene(){
     scene.add(room);
     addGLTFBox();
     addUrbanLampGLTF();
-    scene.add(new THREE.AxesHelper(1000));
+    // scene.add(new THREE.AxesHelper(1000));
 
 }
 function traverseModel(node) {
@@ -268,24 +229,15 @@ function addUrbanLampGLTF(){
         //find the light bulb
         gltf.scene.traverse((node) => {
             if (node.name === 'Object_5'){
-                const light = new THREE.PointLight(0xffffff,1,100);
+                const light = new THREE.PointLight(0xffffff,1);
                 light.castShadow = true;
-                light.name = 'light';
+                light.name = 'lamp_light' ;
                 light.position.set(0,0,0);
+                light.shadow.mapSize.width = 512;
+                light.shadow.mapSize.height = 512;
+
                 node.add(light);
 
-                const focal = new THREE.SpotLight(0xFFFFFF,1);
-                focal.position.set(0,1.9,1.5);
-                focal.target.position.set(0,0,3);
-                focal.angle = Math.PI/6;
-                focal.penumbra = 0.2;
-                focal.castShadow = true;
-                node.add(focal);
-                node.add(focal.target);
-
-                
-                // const spotLightHelper = new THREE.SpotLightHelper(focal);
-                // scene.add(spotLightHelper);
             }});
         scene.add(gltf.scene);
 
@@ -482,8 +434,9 @@ function setupGUI(){
 
 }
 function turnOnOffLamp(lampNode,value){
-    if (lampNode.name === 'light'){
+    if (lampNode.name === 'lamp_light' ){
         lampNode.intensity = effectControler.lightOn ? 1 : 0;
+        lampNode.visible = effectControler.lightOn ? true : false;
         console.log("light on/off");
         return;
     }

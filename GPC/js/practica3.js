@@ -104,21 +104,8 @@ function updateAspectRatio(){
     camera.aspect = ar;
     camera.updateProjectionMatrix();
 
-    if (ar > 1) {
-        miniaturaCamera.left = -L * ar;
-        miniaturaCamera.right  = L * ar;
-        miniaturaCamera.top = L;
-        miniaturaCamera.bottom = -L; 
-
-    }
-    else{
-        miniaturaCamera.left = -L;
-        miniaturaCamera.right = L;
-        miniaturaCamera.top = L/ar;
-        miniaturaCamera.bottom = -L/ar; 
-    }
     miniaturaCamera.updateProjectionMatrix();
-    camera.updateProjectionMatrix();
+    
 }
 
 function loadScene(){
