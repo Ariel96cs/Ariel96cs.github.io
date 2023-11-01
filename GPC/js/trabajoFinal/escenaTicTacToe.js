@@ -447,11 +447,13 @@ function setupGUI(){
     const gui = new GUI();
 
     // Construccion del menu de widgets
-    const menu = gui.addFolder('Controles');
-    menu.add(effectControler,'mensaje').name('Game').disable();
-    menu.add(effectControler,'score1').name('Score Player1').listen().disable();
-    menu.add(effectControler,'score2').name('Score Player2').listen().disable();
-    menu.add(effectControler,'playerTurn').name('Current Turn').listen().disable();
+    const gameInfoMenu = gui.addFolder('Game Info');
+    gameInfoMenu.add(effectControler,'mensaje').name('Game').disable();
+    gameInfoMenu.add(effectControler,'score1').name('Score Player1').listen().disable();
+    gameInfoMenu.add(effectControler,'score2').name('Score Player2').listen().disable();
+    gameInfoMenu.add(effectControler,'playerTurn').name('Current Turn').listen().disable();
+
+    const menu = gui.addFolder('Settings');
     menu.add(effectControler,'player1Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Player1 Texture');
     menu.add(effectControler,'player2Texture',{chess:'chess', cube:'cube', rust:'rust', wood:'wood'}).name('Player2 Texture');
     menu.addColor(effectControler,'player1Color').name('Color Player1');
@@ -477,13 +479,13 @@ function setupGUI(){
             }
         }
     });
-
-    menu.add({resetGame: function(){
+    
+    gui.add({resetGame: function(){
         resetGame();
     }},'resetGame').name('Reset Game');
 
     // add endgame button that send me to other page to play again and pops this game result
-    menu.add({endGame: function(){
+    gui.add({endGame: function(){
         window.location.href = "./endGame.html?score1="+game.score1+"&score2="+game.score2;
     }},'endGame').name('End Game');
 }
