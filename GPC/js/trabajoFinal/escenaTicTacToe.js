@@ -33,8 +33,6 @@ const L = 10;
 
 // Game variables
 let game;
-let score1 = 0;
-let score2 = 0;
 
 const initialX = 0;
 const initialY = -3.5;
@@ -204,7 +202,7 @@ function loadScene(){
     scene.add(room);
     addGLTFBox();
     addUrbanLampGLTF();
-    // scene.add(new THREE.AxesHelper(1000));
+    scene.add(new THREE.AxesHelper(1000));
 
 }
 function traverseModel(node) {
@@ -280,54 +278,71 @@ function addGLTFBox(){
     // importar modelo en gltf
     const gltfLoader = new GLTFLoader();
         gltfLoader.load('./models/wooden_box/scene.gltf',function (gltf){
-        gltf.scene.position.y = -7.5;
+        gltf.scene.position.y = -7.48;
         gltf.scene.rotation.y = -Math.PI/2;
-        gltf.scene.scale.set(0.5,0.5,0.5);
+        gltf.scene.scale.set(0.5,0.5,0.57);
         gltf.scene.name = 'box';
         scene.add(gltf.scene);
 
         //añadirle paredes físicas a la caja
-        const wallsShape1 = new CANNON.Vec3(5,0.25,3.7);
-        const wallsShape2 = new CANNON.Vec3(3.7,0.25,5);
-        const wallDistance = 5.5;
-        const y = -7.5;
+        const wallsShape1 = new CANNON.Vec3(6,3.5,0.3);
+        const wallsShape2 = new CANNON.Vec3(0.3,3.5,6);
+
+        const wallDistance1 = 5.6;
+        const wallDistance2 = 5.6;
+        const y = -7.18;
         const groundMaterial = new CANNON.Material("groundMaterial");
         groundMaterial.restitution = 0.3;
-
+        
+        const floorShape = new CANNON.Vec3(5.5,0.1,6);
+        // create the physic floor  
+        const physicFloor = new CANNON.Body({
+            mass: 0,
+            shape: new CANNON.Box(floorShape),
+            position: new CANNON.Vec3(0,y,0),
+            material: groundMaterial
+        });
+        //physicWall1.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+        world.addBody(physicFloor);
+        
         const physicWall1 = new CANNON.Body({
             mass: 0,
             shape: new CANNON.Box(wallsShape1),
-            position: new CANNON.Vec3(0,y,-wallDistance),
+            position: new CANNON.Vec3(0,y,-wallDistance1),
             material: groundMaterial
         });
-        physicWall1.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+        // physicWall1.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
         world.addBody(physicWall1); 
-        
+
+     
+
         const physicWall2 = new CANNON.Body({
             mass: 0,
             shape: new CANNON.Box(wallsShape1),
-            position: new CANNON.Vec3(0,y,wallDistance),
+            position: new CANNON.Vec3(0,y,wallDistance1),
             material: groundMaterial
         });
-        physicWall2.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
+        // physicWall2.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
         world.addBody(physicWall2);
+
     
+
         const physicWall3 = new CANNON.Body({
             mass: 0,
             shape: new CANNON.Box(wallsShape2),
-            position: new CANNON.Vec3(wallDistance,y,0),
+            position: new CANNON.Vec3(wallDistance2,y,0),
             material: groundMaterial
         });
-        physicWall3.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
+        // physicWall3.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
         world.addBody(physicWall3);
     
         const physicWall4 = new CANNON.Body({
             mass: 0,
             shape: new CANNON.Box(wallsShape2),
-            position: new CANNON.Vec3(-wallDistance,y,0),
+            position: new CANNON.Vec3(-wallDistance2,y,0),
             material: groundMaterial
         });
-        physicWall4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
+        // physicWall4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI/2);
         
         world.addBody(physicWall4);
     });
