@@ -172,7 +172,7 @@ function setCameras(ar) {
     camaraPerspectiva.position.set(1, 2, 10);
     camaraPerspectiva.lookAt(new THREE.Vector3(0, 0, 0))
     camera = camaraPerspectiva.clone()
-    camera.position.set(10, 15, 10);
+    camera.position.set(10, 20, 10);
 
     //Añadir las cámaras a la escena
     scene.add(camera)
