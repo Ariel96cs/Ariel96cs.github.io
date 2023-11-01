@@ -202,7 +202,7 @@ function loadScene(){
     scene.add(room);
     addGLTFBox();
     addUrbanLampGLTF();
-    scene.add(new THREE.AxesHelper(1000));
+    // scene.add(new THREE.AxesHelper(1000));
 
 }
 function traverseModel(node) {
