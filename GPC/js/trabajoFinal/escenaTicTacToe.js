@@ -482,7 +482,7 @@ function setupGUI(){
     
     gui.add({resetGame: function(){
         resetGame();
-    }},'resetGame').name('Reset Game');
+    }},'resetGame').name('Restart Game');
 
     // add endgame button that send me to other page to play again and pops this game result
     gui.add({endGame: function(){
