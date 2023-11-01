@@ -287,7 +287,7 @@ function setupGUI(){
         .onChange(function(value){
             scene.traverseVisible(function(obj) {
                 if (obj instanceof THREE.Mesh) {
-                    obj.material.wireframe = value;
+                    obj.material.wireframe = !value;
                 }
             });
         });
