@@ -422,7 +422,7 @@ function setupGUI(){
         player1Color: 'rgb(150,150,150)',
         player2Color: 'rgb(150,0,150)',
         player1Texture: 'wood',
-        player2Texture: 'chess',
+        player2Texture: 'cube',
         playerTurn: 'Player1',
         lightOn: true,
         mute: true,
@@ -467,6 +467,10 @@ function setupGUI(){
         resetGame();
     }},'resetGame').name('Reset Game');
 
+    // add endgame button that send me to other page to play again and pops this game result
+    menu.add({endGame: function(){
+        window.location.href = "./endGame.html?score1="+game.score1+"&score2="+game.score2;
+    }},'endGame').name('End Game');
 }
 function turnOnOffLamp(lampNode,value){
     if (lampNode.name === 'lamp_light' ){

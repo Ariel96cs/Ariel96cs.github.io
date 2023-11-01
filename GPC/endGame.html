@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>End Game - Tic-Tac-Toe in the Park</title>
+    <style>
+        body {
+            background-image: url('imgs/park_background.jpg'); /* Replace 'park_background.jpg' with your park image */
+            background-size: cover;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            color: #009688; /* Change the color to your preference */
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        #score {
+            font-size: 48px;
+        }
+        #play-again-button {
+            background-color: #009688; /* Change the color to your preference */
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none; /* Remove the default hyperlink underline */
+            display: block;
+            margin-top: 20px;
+        }
+        #winner-message {
+            font-size: 36px;
+            color: rgb(208, 0, 28); /* Gold color */
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Completed!</h1>
+        <p id="winner-message"></p>
+        <p id="score">Score: <span id="score-value">0 - 0</span></p>
+        <a href="trabajoFinal.html" id="play-again-button">Play Again</a>
+    </div>
+    
+    <script>
+        // Get the scores from the URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const score1 = parseInt(urlParams.get("score1"));
+        const score2 = parseInt(urlParams.get("score2"));
+        
+        // Display the scores in the "score-value" span
+        const scoreValue = document.getElementById("score-value");
+        scoreValue.textContent = score1 + " - " + score2;
+        
+        // Determine the winner and display a message
+        const winnerMessage = document.getElementById("winner-message");
+        if (score1 > score2) {
+            winnerMessage.textContent = "Player 1 Wins!";
+        } else if (score2 > score1) {
+            winnerMessage.textContent = "Player 2 Wins!";
+        } else {
+            winnerMessage.textContent = "It's a Tie!";
+        }
+    </script>
+</body>
+</html>
